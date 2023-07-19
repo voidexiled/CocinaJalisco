@@ -12,7 +12,8 @@ import { Feather, Ionicons, Fontisto } from "@expo/vector-icons";
 
 import { Colors } from "../components/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
-const Tab = createBottomTabNavigator();
+
+import { useNavigation } from "@react-navigation/native";
 
 import { AuthContext } from "../components/AuthProvider";
 
@@ -53,7 +54,8 @@ const {
   brand,
 } = Colors;
 
-const Home = ({ navigation }) => {
+const Home = () => {
+  const navigation = useNavigation();
   //const { logout, isUserLoggedIn } = useContext(AuthContext);
   var permissionLevel = 0;
   var displayName = "";

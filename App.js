@@ -97,7 +97,7 @@ const App = () => {
   );
 };
 
-const MainTabNavigator = () => {
+const MainTabNavigator = ({ navigation }) => {
   const { colors } = useTheme();
   const layout = useWindowDimensions();
 
@@ -115,6 +115,7 @@ const MainTabNavigator = () => {
       initialLayout={{ width: layout.width }}
       tabBarPosition="bottom"
       renderTabBar={renderTabBar}
+      initialParams={{ navigation }}
     />
   );
   {
