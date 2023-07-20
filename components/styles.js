@@ -10,7 +10,7 @@ export const Colors = {
   secondary: "#FFBA49", // Amarillo
   tertiary: "#3D405B", // Azul oscuro
   accent: "#5FC3E4", // Celeste
-  background: "#F4F1DE", // Crema claro
+  background: "#fff", // Crema claro
   brand: "#277DA1", // Azul
   text: "#4A4E69", // Azul grisáceo
   textLight: "#9A8C98", // Gris claro
@@ -97,7 +97,17 @@ export const StyledTextInput = styled.TextInput`
     props.productprice &&
     `
     height: 50px;
-
+    margin-right: 10px;
+  
+  background-color: rgba(33,33,33,1);
+  border-radius:12px;
+  elevation: 15;
+  color: #fff;`}
+  ${(props) =>
+    props.productqty &&
+    `
+    height: 50px;
+    margin-left: 10px;
   background-color: rgba(33,33,33,1);
   border-radius:12px;
   elevation: 15;
@@ -111,13 +121,19 @@ export const StyledInputLabel = styled.Text`
   ${(props) =>
     props.productname &&
     `
-
+    
   `}
   ${(props) =>
     props.productprice &&
     `
-
+    left: 0px;    
 `}
+${(props) =>
+    props.productqty &&
+    `
+    overflow: hidden; }
+  right: 0px;
+  `}
 `;
 
 export const LeftIcon = styled.View`
@@ -142,13 +158,13 @@ export const StyledButton = styled.TouchableOpacity`
   margin-vertical: 5px;
   height: 60px;
   align-items: center;
+
   ${(props) =>
     props.inventorySubmit &&
     `
-    background-color: ${secondary};
-    
-    height: 55px;
+    background-color: ${error};
 
+    height: 55px;
   `}
 `;
 

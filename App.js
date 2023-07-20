@@ -34,6 +34,7 @@ import { InventoryProvider } from "./components/InventoryContext";
 import Login from "./screens/Login";
 import Home from "./screens/Home";
 import InventoryScreen from "./screens/InventoryScreen";
+import EditarProductoScreen from "./screens/EditarProductoScreen";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -56,16 +57,14 @@ const renderTabBar = (props) => (
       top: 0,
       borderRadius: 10,
     }}
+    renderIndicator={() => null}
     style={{
       backgroundColor: "#fff",
-      elevation: 15,
-      shadowOpacity: 0.6,
-      shadowRadius: 15,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 0 },
+      elevation: 25,
+
       height: 60,
     }}
-    activeColor={Colors.accent}
+    activeColor={Colors.primary}
     inactiveColor={Colors.tertiary}
     renderLabel={({ route, focused, color }) => (
       <Text style={{ color }}>{route.title}</Text>
@@ -106,6 +105,11 @@ const App = () => {
             options={{
               ...TransitionPresets.SlideFromRight, // Agrega la transición de Slide desde la derecha
             }}
+          />
+          <Stack.Screen
+            name="EditarProductoScreen"
+            component={EditarProductoScreen}
+            options={{ title: "Editar Producto" }}
           />
 
           {/* Aquí puedes agregar más pantallas */}
