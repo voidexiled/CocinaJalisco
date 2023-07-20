@@ -12,7 +12,8 @@ import { Colors } from "./components/styles";
 import { useTheme } from "@react-navigation/native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { View, Text } from "react-native";
-
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Provider } from "react-native-paper";
 const {
   primary,
   secondary,
@@ -29,6 +30,7 @@ const {
 } = Colors;
 
 // Screens
+import { InventoryProvider } from "./components/InventoryContext";
 import Login from "./screens/Login";
 import Home from "./screens/Home";
 import InventoryScreen from "./screens/InventoryScreen";
@@ -49,8 +51,20 @@ const renderScene = ({ route, jumpTo }) => {
 const renderTabBar = (props) => (
   <TabBar
     {...props}
-    indicatorStyle={{ backgroundColor: Colors.accent }}
-    style={{ backgroundColor: "#fff" }}
+    indicatorStyle={{
+      backgroundColor: Colors.accent,
+      top: 0,
+      borderRadius: 10,
+    }}
+    style={{
+      backgroundColor: "#fff",
+      elevation: 15,
+      shadowOpacity: 0.6,
+      shadowRadius: 15,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 0 },
+      height: 60,
+    }}
     activeColor={Colors.accent}
     inactiveColor={Colors.tertiary}
     renderLabel={({ route, focused, color }) => (
@@ -68,7 +82,7 @@ const renderTabBar = (props) => (
         default:
           iconName = "circle";
       }
-      return <Ionicons name={iconName} size={26} color={color} />;
+      return <Ionicons name={iconName} size={20} color={color} />;
     }}
     pressColor="#e9e1e9"
   />
@@ -76,24 +90,28 @@ const renderTabBar = (props) => (
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          ...TransitionPresets.FadeFromBottomAndroid,
-        }}
-      >
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen
-          name="Main"
-          component={MainTabNavigator}
-          options={{
-            ...TransitionPresets.SlideFromRight, // Agrega la transición de Slide desde la derecha
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            ...TransitionPresets.FadeFromBottomAndroid,
           }}
-        />
-        {/* Aquí puedes agregar más pantallas */}
-      </Stack.Navigator>
-    </NavigationContainer>
+        >
+          <Stack.Screen name="Login" component={Login} />
+
+          <Stack.Screen
+            name="Main"
+            component={MainTabNavigator}
+            options={{
+              ...TransitionPresets.SlideFromRight, // Agrega la transición de Slide desde la derecha
+            }}
+          />
+
+          {/* Aquí puedes agregar más pantallas */}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
 
@@ -155,4 +173,12 @@ const MainTabNavigator = ({ navigation }) => {
   }
 };
 
-export default App;
+export default () => {
+  return (
+    <Provider>
+      <InventoryProvider>
+        <App />
+      </InventoryProvider>
+    </Provider>
+  );
+};

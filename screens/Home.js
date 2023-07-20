@@ -16,7 +16,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa
 import { useNavigation } from "@react-navigation/native";
 
 import { AuthContext } from "../components/AuthProvider";
-
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   StyledContainer,
   InnerContainer,
@@ -55,6 +56,7 @@ const {
 } = Colors;
 
 const Home = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   //const { logout, isUserLoggedIn } = useContext(AuthContext);
   var permissionLevel = 0;

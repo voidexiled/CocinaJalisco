@@ -84,12 +84,40 @@ export const StyledTextInput = styled.TextInput`
   margin-vertical: 3px;
   margin-bottom: 10px;
   color: ${text};
+  ${(props) =>
+    props.productname &&
+    `
+    height: 50px;
+
+  background-color: rgba(33,33,33,1);
+  border-radius:12px;
+  elevation: 15;
+  color: #fff;`}
+  ${(props) =>
+    props.productprice &&
+    `
+    height: 50px;
+
+  background-color: rgba(33,33,33,1);
+  border-radius:12px;
+  elevation: 15;
+  color: #fff;`}
 `;
 
 export const StyledInputLabel = styled.Text`
   color: ${text};
   font-size: 13px;
   text-align: left;
+  ${(props) =>
+    props.productname &&
+    `
+
+  `}
+  ${(props) =>
+    props.productprice &&
+    `
+
+`}
 `;
 
 export const LeftIcon = styled.View`
@@ -114,6 +142,14 @@ export const StyledButton = styled.TouchableOpacity`
   margin-vertical: 5px;
   height: 60px;
   align-items: center;
+  ${(props) =>
+    props.inventorySubmit &&
+    `
+    background-color: ${secondary};
+    
+    height: 55px;
+
+  `}
 `;
 
 export const ButtonText = styled.Text`
