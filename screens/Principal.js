@@ -9,7 +9,7 @@ import { Formik } from "formik";
 import { Feather, Ionicons, Fontisto } from "@expo/vector-icons";
 
 import { Colors } from "../components/styles";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
+//import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
 import {
   StyledContainer,
   InnerContainer,
@@ -61,7 +61,7 @@ const Principal = ({ navigation }) => {
   }, []);
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem("sessionData");
+      //await AsyncStorage.removeItem("sessionData");
       navigation.navigate("Login");
     } catch (e) {
       console.log(e);
@@ -70,7 +70,8 @@ const Principal = ({ navigation }) => {
 
   const getLocalSession = async () => {
     try {
-      const value = await AsyncStorage.getItem("sessionData");
+      //const value = await AsyncStorage.getItem("sessionData");
+      const value = null;
       if (value !== null) {
         // value previously stored
         const data = JSON.parse(value);

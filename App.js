@@ -1,4 +1,4 @@
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import {
@@ -7,13 +7,12 @@ import {
 } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 //icons
-import { Feather, Ionicons, Fontisto } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "./components/styles";
 import { useTheme } from "@react-navigation/native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import { View, Text } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Provider } from "react-native-paper";
+import { TabView, TabBar } from "react-native-tab-view";
+import { Text } from "react-native";
+
 const {
   primary,
   secondary,
@@ -36,7 +35,6 @@ import Home from "./screens/Home";
 import InventoryScreen from "./screens/InventoryScreen";
 import EditarProductoScreen from "./screens/EditarProductoScreen";
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
 
 const renderScene = ({ route, jumpTo }) => {
   switch (route.key) {
@@ -89,33 +87,31 @@ const renderTabBar = (props) => (
 
 const App = () => {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            ...TransitionPresets.FadeFromBottomAndroid,
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          ...TransitionPresets.FadeFromBottomAndroid,
+        }}
+      >
+        <Stack.Screen name="Login" component={Login} />
+
+        <Stack.Screen
+          name="Main"
+          component={MainTabNavigator}
+          options={{
+            ...TransitionPresets.SlideFromRight, // Agrega la transición de Slide desde la derecha
           }}
-        >
-          <Stack.Screen name="Login" component={Login} />
+        />
+        <Stack.Screen
+          name="EditarProductoScreen"
+          component={EditarProductoScreen}
+          options={{ title: "Editar Producto" }}
+        />
 
-          <Stack.Screen
-            name="Main"
-            component={MainTabNavigator}
-            options={{
-              ...TransitionPresets.SlideFromRight, // Agrega la transición de Slide desde la derecha
-            }}
-          />
-          <Stack.Screen
-            name="EditarProductoScreen"
-            component={EditarProductoScreen}
-            options={{ title: "Editar Producto" }}
-          />
-
-          {/* Aquí puedes agregar más pantallas */}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+        {/* Aquí puedes agregar más pantallas */}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
@@ -179,10 +175,8 @@ const MainTabNavigator = ({ navigation }) => {
 
 export default () => {
   return (
-    <Provider>
-      <InventoryProvider>
-        <App />
-      </InventoryProvider>
-    </Provider>
+    <InventoryProvider>
+      <App />
+    </InventoryProvider>
   );
 };
