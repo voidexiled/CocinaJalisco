@@ -14,7 +14,7 @@
         "gradleCommand": ":app:assembleRelease"
       },
 
-      "channel": "api"
+      "channel": "production"
     },
     "preview3": {
       "developmentClient": true,

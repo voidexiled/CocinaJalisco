@@ -1,36 +1,17 @@
 import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
-// formik
-
-import { Formik } from "formik";
-
-//icons
-import { Feather, Ionicons, Fontisto } from "@expo/vector-icons";
 
 import { Colors } from "../components/styles";
-//import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
+import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   StyledContainer,
   InnerContainer,
-  PageLogo,
-  PageTitle,
   SubTitle,
-  StyledFormArea,
-  StyledTextInput,
-  StyledInputLabel,
   StyledButton,
   ButtonText,
-  LeftIcon,
-  RightIcon,
-  Line,
-  MsgBox,
-  ExtraText,
-  ExtraView,
-  TextLink,
-  TextLinkContent,
 } from "../components/styles";
-import { useState } from "react";
 
 const {
   primary,
@@ -47,7 +28,10 @@ const {
   brand,
 } = Colors;
 
-const Principal = ({ navigation }) => {
+const HomeScreen = () => {
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  //const { logout, isUserLoggedIn } = useContext(AuthContext);
   var permissionLevel = 0;
   var displayName = "";
 
@@ -59,10 +43,11 @@ const Principal = ({ navigation }) => {
       displayName = session.displayName;
     }
   }, []);
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
-      //await AsyncStorage.removeItem("sessionData");
-      navigation.navigate("Login");
+      await AsyncStorage.removeItem("sessionData");
+      //logout();
+      navigation.replace("LoginScreen");
     } catch (e) {
       console.log(e);
     }
@@ -70,8 +55,7 @@ const Principal = ({ navigation }) => {
 
   const getLocalSession = async () => {
     try {
-      //const value = await AsyncStorage.getItem("sessionData");
-      const value = null;
+      const value = await AsyncStorage.getItem("sessionData");
       if (value !== null) {
         // value previously stored
         const data = JSON.parse(value);
@@ -80,7 +64,7 @@ const Principal = ({ navigation }) => {
       }
     } catch (e) {
       // error reading value
-      navigation.navigate("Login");
+      navigation.replace("LoginScreen");
       console.log(e);
     }
   };
@@ -91,7 +75,7 @@ const Principal = ({ navigation }) => {
       <InnerContainer>
         <SubTitle>{displayName}</SubTitle>
         <SubTitle>{permissionLevel}</SubTitle>
-        <StyledButton onPress={logout}>
+        <StyledButton onPress={handleLogout}>
           <ButtonText> Logout</ButtonText>
         </StyledButton>
       </InnerContainer>
@@ -99,4 +83,4 @@ const Principal = ({ navigation }) => {
   );
 };
 
-export default Principal;
+export default HomeScreen;

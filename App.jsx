@@ -14,6 +14,7 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { View, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-native-paper";
+
 const {
   primary,
   secondary,
@@ -31,21 +32,20 @@ const {
 
 // Screens
 import { InventoryProvider } from "./components/InventoryContext";
-import Login from "./screens/Login";
-import Home from "./screens/Home";
+import LoginScreen from "./screens/LoginScreen";
+import HomeScreen from "./screens/HomeScreen";
 import InventoryScreen from "./screens/InventoryScreen";
 import EditarProductoScreen from "./screens/EditarProductoScreen";
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
 
 const renderScene = ({ route, jumpTo }) => {
   switch (route.key) {
     case "home":
-      return <Home />;
+      return <HomeScreen />;
     case "inventory":
       return <InventoryScreen />;
     default:
-      return <Home />;
+      return <HomeScreen />;
   }
 };
 
@@ -97,10 +97,10 @@ const App = () => {
             ...TransitionPresets.FadeFromBottomAndroid,
           }}
         >
-          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
 
           <Stack.Screen
-            name="Main"
+            name="MainTabNavigator"
             component={MainTabNavigator}
             options={{
               ...TransitionPresets.SlideFromRight, // Agrega la transición de Slide desde la derecha
@@ -140,41 +140,6 @@ const MainTabNavigator = ({ navigation }) => {
       initialParams={{ navigation }}
     />
   );
-  {
-    /*
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-      }}
-      activeColor={colors.primary}
-      inactiveColor={colors.tertiary}
-      swipeEnabled={true} // Habilitar el gesto de deslizar hacia los lados
-    >
-      <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{
-          tabBarLabel: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={26} color={color} />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Inventory"
-        component={InventoryScreen}
-        options={{
-          tabBarLabel: "Inventory",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="list" size={26} color={color} />
-          ),
-        }}
-      />
-
-    </Tab.Navigator>*/
-  }
 };
 
 export default () => {

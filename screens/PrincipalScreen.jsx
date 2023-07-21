@@ -1,23 +1,15 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 // formik
-import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { Formik } from "formik";
-import Principal from "./Principal";
+
 //icons
 import { Feather, Ionicons, Fontisto } from "@expo/vector-icons";
 
 import { Colors } from "../components/styles";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
-
-import { useNavigation } from "@react-navigation/native";
-
-import { AuthContext } from "../components/AuthProvider";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+//import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
 import {
   StyledContainer,
   InnerContainer,
@@ -55,10 +47,7 @@ const {
   brand,
 } = Colors;
 
-const Home = () => {
-  const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
-  //const { logout, isUserLoggedIn } = useContext(AuthContext);
+const PrincipalScreen = ({ navigation }) => {
   var permissionLevel = 0;
   var displayName = "";
 
@@ -70,11 +59,10 @@ const Home = () => {
       displayName = session.displayName;
     }
   }, []);
-  const handleLogout = async () => {
+  const logout = async () => {
     try {
       await AsyncStorage.removeItem("sessionData");
-      //logout();
-      navigation.replace("Login");
+      navigation.navigate("LoginScreen");
     } catch (e) {
       console.log(e);
     }
@@ -82,7 +70,8 @@ const Home = () => {
 
   const getLocalSession = async () => {
     try {
-      const value = await AsyncStorage.getItem("sessionData");
+      //const value = await AsyncStorage.getItem("sessionData");
+      const value = null;
       if (value !== null) {
         // value previously stored
         const data = JSON.parse(value);
@@ -91,7 +80,7 @@ const Home = () => {
       }
     } catch (e) {
       // error reading value
-      navigation.replace("Login");
+      navigation.navigate("LoginScreen");
       console.log(e);
     }
   };
@@ -102,7 +91,7 @@ const Home = () => {
       <InnerContainer>
         <SubTitle>{displayName}</SubTitle>
         <SubTitle>{permissionLevel}</SubTitle>
-        <StyledButton onPress={handleLogout}>
+        <StyledButton onPress={logout}>
           <ButtonText> Logout</ButtonText>
         </StyledButton>
       </InnerContainer>
@@ -110,4 +99,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Principal;

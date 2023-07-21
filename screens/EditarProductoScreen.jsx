@@ -1,7 +1,7 @@
 // EditarProductoScreen.js
 
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { useNavigation, useRoute } from "@react-navigation/native";
 

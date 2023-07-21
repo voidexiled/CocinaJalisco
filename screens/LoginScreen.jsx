@@ -49,7 +49,7 @@ const {
   brand,
 } = Colors;
 
-const Login = ({ navigation }) => {
+const LoginScreen = ({ navigation }) => {
   const [hidePassword, setHidePassword] = useState(true);
   //const { login } = useContext(AuthContext);
   useEffect(() => {
@@ -72,7 +72,7 @@ const Login = ({ navigation }) => {
       // Si los datos de sesión son válidos, navega a la siguiente pantalla
       // console.log(sessionData);
       // console.log(sessionData["result"].permissionLevel);
-      navigation.replace("Main"); // Reemplaza "Dashboard" con el nombre de la pantalla a la que deseas navegar
+      navigation.replace("MainTabNavigator"); // Reemplaza "Dashboard" con el nombre de la pantalla a la que deseas navegar
     }
   };
 
@@ -95,7 +95,7 @@ const Login = ({ navigation }) => {
       saveSessionData(sessionData); // Implementa saveSessionData para guardar los datos de sesión
 
       // Navega a la siguiente pantalla
-      navigation.replace("Main"); // Reemplaza "Dashboard" con el nombre de la pantalla a la que deseas navegar
+      navigation.replace("MainTabNavigator"); // Reemplaza "Dashboard" con el nombre de la pantalla a la que deseas navegar
     } catch (error) {
       // Si hay un error en la autenticación, muestra un mensaje de error
       Alert.alert("Error", "Credenciales inválidas. Inténtalo nuevamente.");
@@ -221,4 +221,4 @@ const MyTextInput = ({
   );
 };
 
-export default Login;
+export default LoginScreen;

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, forwardRef } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
-import { TextInput, Button, DataTable } from "react-native-paper";
+import { TextInput, Button, DataTable, Snackbar } from "react-native-paper";
 import { Feather } from "@expo/vector-icons";
-import { useIsFocused, useTheme } from "@react-navigation/native"; // Importa useIsFocused
+import { useIsFocused } from "@react-navigation/native"; // Importa useIsFocused
+
 import {
   StyledContainer,
   StyledFormArea,
@@ -10,27 +11,46 @@ import {
   InnerContainer,
   StyledButton,
   ButtonText,
-  StyledInputLabel,
   LeftIcon,
 } from "../components/styles";
 import { useNavigation } from "@react-navigation/native";
 
 import axios from "axios";
+import { KeyboardAvoidingView } from "react-native";
+
+const offset = Platform.OS === "android" ? -100 : 0;
+const behavior = Platform.OS === "android" ? "height" : "padding";
 
 const InventoryScreen = () => {
   const navigation = useNavigation();
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productQty, setProductQty] = useState("");
+
+  const productNameRef = useRef(null);
+  const productPriceRef = useRef(null);
+  const productQtyRef = useRef(null);
+
   const [inventory, setInventory] = useState([]);
   const isFocused = useIsFocused(); // Usa el hook useIsFocused
-  const theme = useTheme();
+  const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(
+    "Porfavor llenar todos los campos."
+  );
+
   useEffect(() => {
     // Ejecutar fetchInventory cada vez que la pantalla se enfoca nuevamente
     if (isFocused) {
       fetchInventory();
     }
   }, [isFocused]);
+  const showAlert = () => {
+    setIsAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setIsAlertVisible(false);
+  };
 
   const fetchInventory = async () => {
     try {
@@ -45,11 +65,12 @@ const InventoryScreen = () => {
 
   const handleAddProduct = async () => {
     if (!productName || !productPrice || !productQty) {
-      Alert.alert("Error", "Por favor completa todos los campos");
+      setAlertMessage("Porfavor llenar todos los campos.");
+      showAlert();
       return;
     }
 
-    const newProduct = {
+    var newProduct = {
       displayName: productName,
       price: productPrice,
       qty: productQty,
@@ -63,11 +84,15 @@ const InventoryScreen = () => {
       ); // Reemplaza "TU_API_ENDPOINT" con la URL de tu API
       console.log("Response: ", response.data);
       setInventory([...inventory, response.data]);
+      setAlertMessage(`Producto ${productName} agregado correctamente.`);
+      showAlert();
       setProductName("");
       setProductPrice("");
       setProductQty("");
     } catch (error) {
       console.error("Error al agregar el producto:", error);
+      setAlertMessage("Error al agregar el producto");
+      showAlert();
     }
   };
 
@@ -99,7 +124,7 @@ const InventoryScreen = () => {
         {item.qty}
       </DataTable.Cell>
       <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 1 }}>
-        {item.price}
+        $ {item.price}
       </DataTable.Cell>
       <DataTable.Cell numeric textStyle={styles.labelTable} style={{ flex: 1 }}>
         <Button icon="delete" onPress={() => handleDeleteProduct(item)} />
@@ -108,8 +133,20 @@ const InventoryScreen = () => {
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer keyboardShouldPersistTaps="true">
       <InnerContainer>
+        <Snackbar
+          visible={isAlertVisible}
+          onDismiss={hideAlert}
+          duration={3000}
+          action={{
+            label: "OK",
+            onPress: hideAlert,
+          }}
+          zIndex={9999}
+        >
+          {alertMessage}
+        </Snackbar>
         <StyledFormArea>
           <MyTextInput
             icon={"shopping-bag"}
@@ -118,6 +155,9 @@ const InventoryScreen = () => {
             value={productName}
             onChangeText={setProductName}
             placeholder="Nombre del producto"
+            returnKeyType="next"
+            ref={productNameRef}
+            onSubmitEditing={() => productPriceRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
           />
           <View style={styles.tePriceAndQty}>
             <MyTextInput
@@ -129,6 +169,9 @@ const InventoryScreen = () => {
               onChangeText={setProductPrice}
               keyboardType="numeric"
               placeholder="0"
+              returnKeyType="next"
+              ref={productPriceRef}
+              onSubmitEditing={() => productQtyRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
             />
             <MyTextInput
               style={styles.textInput}
@@ -139,6 +182,8 @@ const InventoryScreen = () => {
               onChangeText={setProductQty}
               keyboardType="numeric"
               placeholder="0"
+              ref={productQtyRef}
+              onSubmitEditing={handleAddProduct}
             />
           </View>
 
@@ -146,50 +191,54 @@ const InventoryScreen = () => {
             inventorySubmit={true}
             mode="contained"
             onPress={handleAddProduct}
+            style={{ marginBottom: 45 }}
           >
             <ButtonText style={styles.buttonLabel}>Add Product</ButtonText>
           </StyledButton>
-
-          <FlatList
-            style={styles.tableContainer}
-            data={inventory}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            stickyHeaderIndices={[0]}
-            ListHeaderComponent={() => (
-              <DataTable>
-                <DataTable.Header>
-                  {/* Establecer flex para controlar el ancho de las columnas */}
-                  <DataTable.Title
-                    textStyle={styles.headerLabelTable}
-                    style={{ flex: 2 }}
-                  >
-                    Nombre
-                  </DataTable.Title>
-                  <DataTable.Title
-                    textStyle={styles.headerLabelTable}
-                    style={{ flex: 1 }}
-                  >
-                    Existencia
-                  </DataTable.Title>
-                  <DataTable.Title
-                    textStyle={styles.headerLabelTable}
-                    style={{ flex: 1 }}
-                  >
-                    Precio
-                  </DataTable.Title>
-                  <DataTable.Title
-                    numeric
-                    textStyle={styles.headerLabelTable}
-                    style={{ flex: 1 }}
-                  >
-                    Eliminar
-                  </DataTable.Title>
-                </DataTable.Header>
-              </DataTable>
-            )}
-            ListFooterComponent={() => <View style={styles.footer} />}
-          />
+          <KeyboardAvoidingView
+            behavior={behavior}
+            keyboardVerticalOffset={offset}
+          >
+            <FlatList
+              style={styles.tableContainer}
+              data={inventory}
+              renderItem={renderItem}
+              keyExtractor={(item, index) => index.toString()}
+              stickyHeaderIndices={[0]}
+              ListHeaderComponent={() => (
+                <DataTable styles={styles.datatablee}>
+                  <DataTable.Header>
+                    {/* Establecer flex para controlar el ancho de las columnas */}
+                    <DataTable.Title
+                      textStyle={styles.headerLabelTable}
+                      style={{ flex: 2 }}
+                    >
+                      Nombre
+                    </DataTable.Title>
+                    <DataTable.Title
+                      textStyle={styles.headerLabelTable}
+                      style={{ flex: 1 }}
+                    >
+                      Existencia
+                    </DataTable.Title>
+                    <DataTable.Title
+                      textStyle={styles.headerLabelTable}
+                      style={{ flex: 1 }}
+                    >
+                      Precio
+                    </DataTable.Title>
+                    <DataTable.Title
+                      numeric
+                      textStyle={styles.headerLabelTable}
+                      style={{ flex: 1 }}
+                    >
+                      Eliminar
+                    </DataTable.Title>
+                  </DataTable.Header>
+                </DataTable>
+              )}
+            />
+          </KeyboardAvoidingView>
         </StyledFormArea>
       </InnerContainer>
     </StyledContainer>
@@ -197,6 +246,9 @@ const InventoryScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  datatablee: {
+    height: "auto",
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -212,6 +264,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#212121",
     borderRadius: 10,
     elevation: 10,
+    maxHeight: 500,
   },
   icon: {
     top: 20,
@@ -246,18 +299,30 @@ const styles = StyleSheet.create({
   },
 });
 
-const MyTextInput = ({ label, icon, ...props }) => {
+const MyTextInput = forwardRef(({ label, icon, ...props }, ref) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
   return (
-    <View>
-      <LeftIcon style={icon != "package" ? styles.icon : styles.iconQty}>
+    <View
+      style={[
+        styles.inputContainer,
+        { borderColor: isFocused ? "#007AFF" : "#C0C0C0" },
+      ]}
+    >
+      <LeftIcon style={icon !== "package" ? styles.icon : styles.iconQty}>
         <Feather name={icon} size={16} color="#fff" />
       </LeftIcon>
       <StyledTextInput
         {...props}
+        ref={ref} // Asigna la referencia proporcionada al TextInput
         placeholderTextColor="rgba(221,221,221,0.6)"
-      ></StyledTextInput>
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
     </View>
   );
-};
+});
 
 export default InventoryScreen;
