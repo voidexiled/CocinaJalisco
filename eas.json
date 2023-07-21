@@ -13,9 +13,7 @@
       "android": {
         "gradleCommand": ":app:assembleRelease"
       },
-      "ios": {
-        "buildType": "release"
-      },
+
       "channel": "api"
     },
     "preview3": {
