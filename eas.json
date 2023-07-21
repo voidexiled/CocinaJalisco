@@ -2,22 +2,29 @@
   "cli": {
     "version": ">= 3.16.0"
   },
-
   "build": {
     "preview": {
       "android": {
         "buildType": "apk"
-      }
+      },
+      "channel": "api"
     },
     "preview2": {
       "android": {
         "gradleCommand": ":app:assembleRelease"
-      }
+      },
+      "ios": {
+        "buildType": "release"
+      },
+      "channel": "api"
     },
     "preview3": {
-      "developmentClient": true
+      "developmentClient": true,
+      "channel": "api"
     },
-    "production": {}
+    "production": {
+      "channel": "production"
+    }
   },
   "submit": {
     "production": {}

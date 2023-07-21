@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { View, Alert } from "react-native";
 import * as Yup from "yup";
 import axios from "axios";
-//import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
 // formik
 
 import { Formik } from "formik";
@@ -109,10 +109,10 @@ const Login = ({ navigation }) => {
   // Función para obtener los datos de sesión guardados localmente
   const retrieveSessionData = async () => {
     try {
-      //const sessionDataString = await AsyncStorage.getItem("sessionData");
-      //if (sessionDataString) {
-      //return JSON.parse(sessionDataString);
-      //}
+      const sessionDataString = await AsyncStorage.getItem("sessionData");
+      if (sessionDataString) {
+        return JSON.parse(sessionDataString);
+      }
       return null;
     } catch (error) {
       console.error("Error al obtener los datos de sesión:", error);
@@ -123,8 +123,8 @@ const Login = ({ navigation }) => {
   // Función para guardar los datos de sesión localmente
   const saveSessionData = async (sessionData) => {
     try {
-      //const sessionDataString = JSON.stringify(sessionData);
-      //await AsyncStorage.setItem("sessionData", sessionDataString);
+      const sessionDataString = JSON.stringify(sessionData);
+      await AsyncStorage.setItem("sessionData", sessionDataString);
     } catch (error) {
       console.error("Error al guardar los datos de sesión:", error);
     }

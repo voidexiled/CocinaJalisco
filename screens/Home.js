@@ -11,7 +11,7 @@ import Principal from "./Principal";
 import { Feather, Ionicons, Fontisto } from "@expo/vector-icons";
 
 import { Colors } from "../components/styles";
-//import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Importa AsyncStorage
 
 import { useNavigation } from "@react-navigation/native";
 
@@ -72,7 +72,7 @@ const Home = () => {
   }, []);
   const handleLogout = async () => {
     try {
-      //await AsyncStorage.removeItem("sessionData");
+      await AsyncStorage.removeItem("sessionData");
       //logout();
       navigation.replace("Login");
     } catch (e) {
@@ -82,8 +82,7 @@ const Home = () => {
 
   const getLocalSession = async () => {
     try {
-      //const value = await AsyncStorage.getItem("sessionData");
-      const value = null;
+      const value = await AsyncStorage.getItem("sessionData");
       if (value !== null) {
         // value previously stored
         const data = JSON.parse(value);
