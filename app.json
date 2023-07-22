@@ -2,7 +2,8 @@
   "expo": {
     "name": "CocinaJalisco",
     "slug": "CocinaJalisco",
-    "version": "2.0.1",
+    "version": "2.0.2",
+
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,9 +33,7 @@
         "projectId": "b993afce-04e0-4f8f-a3be-0f8dfb428637"
       }
     },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
+    "runtimeVersion": "49.0.3",
     "updates": {
       "url": "https://u.expo.dev/b993afce-04e0-4f8f-a3be-0f8dfb428637"
     }

@@ -39,7 +39,6 @@ const InventoryScreen = () => {
   );
 
   useEffect(() => {
-    // Ejecutar fetchInventory cada vez que la pantalla se enfoca nuevamente
     if (isFocused) {
       fetchInventory();
     }
@@ -56,7 +55,7 @@ const InventoryScreen = () => {
     try {
       const response = await axios.get(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products"
-      ); // Reemplaza "TU_API_ENDPOINT" con la URL de tu API
+      );
       setInventory(response.data);
     } catch (error) {
       console.error("Error al obtener el inventario:", error);
@@ -81,7 +80,7 @@ const InventoryScreen = () => {
       const response = await axios.post(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products",
         newProduct
-      ); // Reemplaza "TU_API_ENDPOINT" con la URL de tu API
+      );
       console.log("Response: ", response.data);
       setInventory([...inventory, response.data]);
       setAlertMessage(`Producto ${productName} agregado correctamente.`);
@@ -101,7 +100,7 @@ const InventoryScreen = () => {
       console.log(product.id);
       const api = `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products/${product.id}`;
       console.log(api);
-      await axios.delete(api); // Reemplaza "TU_API_ENDPOINT" con la URL de tu API
+      await axios.delete(api);
       const updatedInventory = inventory.filter(
         (item) => item.id !== product.id
       );
