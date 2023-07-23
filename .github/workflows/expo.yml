@@ -1,0 +1,5 @@
+- name: Expo GitHub Action
+  uses: expo/expo-github-action@8.0.0
+  with:
+    username: voidexiled ,
+    password: z4me5cwh, 
