@@ -1,6 +1,15 @@
+import {
+  responsiveWidth as rW,
+  responsiveHeight as rH,
+} from "../utils/responsive";
+
 import React, { useState, useEffect, useRef, forwardRef } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
 import { TextInput, Button, DataTable, Snackbar } from "react-native-paper";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import { Feather } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native"; // Importa useIsFocused
 
@@ -194,50 +203,45 @@ const InventoryScreen = () => {
           >
             <ButtonText style={styles.buttonLabel}>Add Product</ButtonText>
           </StyledButton>
-          <KeyboardAvoidingView
-            behavior={behavior}
-            keyboardVerticalOffset={offset}
-          >
-            <FlatList
-              style={styles.tableContainer}
-              data={inventory}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-              stickyHeaderIndices={[0]}
-              ListHeaderComponent={() => (
-                <DataTable styles={styles.datatablee}>
-                  <DataTable.Header>
-                    {/* Establecer flex para controlar el ancho de las columnas */}
-                    <DataTable.Title
-                      textStyle={styles.headerLabelTable}
-                      style={{ flex: 2 }}
-                    >
-                      Nombre
-                    </DataTable.Title>
-                    <DataTable.Title
-                      textStyle={styles.headerLabelTable}
-                      style={{ flex: 1 }}
-                    >
-                      Existencia
-                    </DataTable.Title>
-                    <DataTable.Title
-                      textStyle={styles.headerLabelTable}
-                      style={{ flex: 1 }}
-                    >
-                      Precio
-                    </DataTable.Title>
-                    <DataTable.Title
-                      numeric
-                      textStyle={styles.headerLabelTable}
-                      style={{ flex: 1 }}
-                    >
-                      Eliminar
-                    </DataTable.Title>
-                  </DataTable.Header>
-                </DataTable>
-              )}
-            />
-          </KeyboardAvoidingView>
+          <FlatList
+            style={styles.tableContainer}
+            data={inventory}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            stickyHeaderIndices={[0]}
+            ListHeaderComponent={() => (
+              <DataTable styles={styles.datatablee}>
+                <DataTable.Header>
+                  {/* Establecer flex para controlar el ancho de las columnas */}
+                  <DataTable.Title
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 2 }}
+                  >
+                    Nombre
+                  </DataTable.Title>
+                  <DataTable.Title
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 1 }}
+                  >
+                    Existencia
+                  </DataTable.Title>
+                  <DataTable.Title
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 1 }}
+                  >
+                    Precio
+                  </DataTable.Title>
+                  <DataTable.Title
+                    numeric
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 1 }}
+                  >
+                    Eliminar
+                  </DataTable.Title>
+                </DataTable.Header>
+              </DataTable>
+            )}
+          />
         </StyledFormArea>
       </InnerContainer>
     </StyledContainer>
@@ -258,19 +262,20 @@ const styles = StyleSheet.create({
   tePriceAndQty: {
     flexDirection: "row",
     justifyContent: "space-between",
+    maxWidth: "100%",
   },
   tableContainer: {
     backgroundColor: "#212121",
     borderRadius: 10,
     elevation: 10,
-    maxHeight: 500,
+    maxHeight: rH(500),
   },
   icon: {
-    top: 20,
+    top: rH(20),
   },
   iconQty: {
-    top: 20,
-    left: 25,
+    top: rH(20),
+    left: rW(20),
   },
   buttonLabel: {
     color: "#fff",
@@ -287,14 +292,12 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   footer: {
-    height: 100, // Espacio para el pie de página de la tabla
+    height: rH(100), // Espacio para el pie de página de la tabla
   },
   textInput: {
-    height: "auto",
-    maxWidth: 180,
-    width: 180,
-    margin: 0,
-    height: 50,
+    height: rH(50),
+    width: rW(160),
+    margin: "auto",
   },
 });
 
