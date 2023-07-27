@@ -1,6 +1,9 @@
 import styled from "styled-components/native";
 import Constants from "expo-constants";
-
+import {
+  responsiveWidth as rW,
+  responsiveHeight as rH,
+} from "../utils/responsive";
 const StatusBarHeight = Constants.statusBarHeight;
 
 // colors
@@ -39,7 +42,7 @@ export const StyledContainer = styled.View`
   flex: 1;
   padding: 25px;
   padding-top: ${StatusBarHeight + 10}px;
-  background-color: ${background};
+  padding-bottom: 10px;
 `;
 
 export const InnerContainer = styled.View`
@@ -49,12 +52,12 @@ export const InnerContainer = styled.View`
 `;
 
 export const PageLogo = styled.Image`
-  width: 250px;
-  height: 200px;
+  width: ${rW(250)}px;
+  height: ${rH(200)}px;
 `;
 
 export const PageTitle = styled.Text`
-  font-size: 30px;
+  font-size: ${rW(30)}px;
   text-align: center;
   font-weight: bold;
   color: ${brand};
@@ -62,7 +65,7 @@ export const PageTitle = styled.Text`
 `;
 
 export const SubTitle = styled.Text`
-  font-size: 18px;
+  font-size: ${rW(18)}px;
   margin-bottom: 20px;
   letter-spacing: 1px;
   font-weight: bold;
@@ -74,20 +77,19 @@ export const StyledFormArea = styled.View`
 `;
 
 export const StyledTextInput = styled.TextInput`
-  background-color: ${background};
   padding: 15px;
   padding-left: 55px;
   padding-right: 55px;
   border-radius: 5px;
-  font-size: 16px;
-  height: 60px;
+  font-size: ${rW(16)}px;
+  height: ${rH(60)}px;
   margin-vertical: 3px;
   margin-bottom: 10px;
   color: ${text};
   ${(props) =>
     props.productname &&
     `
-    height: 50px;
+    height: ${rH(50)}px;
 
   background-color: rgba(33,33,33,1);
   border-radius:12px;
@@ -96,7 +98,7 @@ export const StyledTextInput = styled.TextInput`
   ${(props) =>
     props.productprice &&
     `
-    height: 50px;
+    height: ${rH(50)}px;
     margin-right: 10px;
   
   background-color: rgba(33,33,33,1);
@@ -106,7 +108,7 @@ export const StyledTextInput = styled.TextInput`
   ${(props) =>
     props.productqty &&
     `
-    height: 50px;
+    height: ${rH(50)}px;
     margin-left: 10px;
   background-color: rgba(33,33,33,1);
   border-radius:12px;
@@ -116,7 +118,7 @@ export const StyledTextInput = styled.TextInput`
 
 export const StyledInputLabel = styled.Text`
   color: ${text};
-  font-size: 13px;
+  font-size: ${rW(13)}px;
   text-align: left;
   ${(props) =>
     props.productname &&
@@ -156,7 +158,7 @@ export const StyledButton = styled.TouchableOpacity`
   justify-content: center;
   border-radius: 5px;
   margin-vertical: 5px;
-  height: 60px;
+  height: ${rH(60)}px;
   align-items: center;
 
   ${(props) =>
@@ -164,24 +166,24 @@ export const StyledButton = styled.TouchableOpacity`
     `
     background-color: ${error};
 
-    height: 55px;
+    height: ${rH(55)}px;
   `}
 `;
 
 export const ButtonText = styled.Text`
   color: ${background};
-  font-size: 16px;
+  font-size: ${rW(16)}px;
   font-weight: bold;
 `;
 
 export const MsgBox = styled.Text`
   text-align: center;
-  font-size: 13px;
+  font-size: ${rW(13)}px;
   color: ${(props) => (props.type == "SUCCESS" ? success : error)};
 `;
 
 export const Line = styled.View`
-  height: 1px;
+  height: ${rH(1)}px;
   width: 100%;
   background-color: ${border};
   margin-vertical: 10px;
@@ -198,7 +200,7 @@ export const ExtraText = styled.Text`
   justify-content: center;
   align-items: center;
   color: ${tertiary};
-  font-size: 15px;
+  font-size: ${rW(15)}px;
 `;
 
 export const TextLink = styled.TouchableOpacity`
@@ -208,5 +210,5 @@ export const TextLink = styled.TouchableOpacity`
 
 export const TextLinkContent = styled.Text`
   color: ${primary};
-  font-size: 15px;
+  font-size: ${rW(15)}px;
 `;

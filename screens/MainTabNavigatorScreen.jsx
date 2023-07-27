@@ -1,0 +1,110 @@
+import React, { useState } from "react";
+
+import { useTheme } from "@react-navigation/native";
+import { useWindowDimensions } from "react-native";
+import { Colors } from "../components/styles";
+import HomeScreen from "./HomeScreen";
+import InventoryScreen from "./InventoryScreen";
+import OrdersScreen from "./OrdersScreen";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import { Text, SafeAreaView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+const {
+  primary,
+  secondary,
+  tertiary,
+  accent,
+  background,
+  text,
+  textLight,
+  border,
+  success,
+  error,
+  warning,
+  brand,
+} = Colors;
+import { InnerContainer } from "../components/styles";
+import { Ionicons } from "@expo/vector-icons";
+
+const MainTabNavigatorScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const layout = useWindowDimensions();
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: "home", title: "Principal" },
+    { key: "inventory", title: "Inventario" },
+    { key: "orders", title: "Pedidos" },
+  ]);
+
+  const renderScene = ({ route, jumpTo }) => {
+    switch (route.key) {
+      case "home":
+        return <HomeScreen />;
+      case "inventory":
+        return <InventoryScreen />;
+      case "orders":
+        return <OrdersScreen />;
+      default:
+        return <HomeScreen />;
+    }
+  };
+
+  const renderTabBar = (props) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{
+        backgroundColor: Colors.accent,
+        top: 0,
+        borderRadius: 10,
+      }}
+      renderIndicator={() => null}
+      style={{
+        backgroundColor: "#fff",
+        elevation: 25,
+
+        height: 60 + insets.bottom,
+      }}
+      activeColor={Colors.primary}
+      inactiveColor={Colors.tertiary}
+      renderLabel={({ route, focused, color }) => (
+        <Text style={{ color }}>{route.title}</Text>
+      )}
+      renderIcon={({ route, focused, color }) => {
+        let iconName;
+        switch (route.key) {
+          case "home":
+            iconName = focused ? "home" : "home-outline";
+            break;
+          case "inventory":
+            iconName = focused ? "list" : "list-outline";
+            break;
+          case "orders":
+            iconName = focused ? "cart" : "cart-outline";
+            break;
+          default:
+            iconName = "circle";
+        }
+        return <Ionicons name={iconName} size={20} color={color} />;
+      }}
+      pressColor="#e9e1e9"
+    />
+  );
+
+  return (
+    <TabView
+      navigationState={{ index, routes }}
+      renderScene={renderScene}
+      onIndexChange={setIndex}
+      initialLayout={{
+        width: layout.width,
+      }}
+      tabBarPosition="bottom"
+      renderTabBar={renderTabBar}
+      initialParams={{ navigation }}
+    />
+  );
+};
+
+export default MainTabNavigatorScreen;

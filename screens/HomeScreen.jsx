@@ -1,3 +1,8 @@
+import {
+  responsiveWidth as rW,
+  responsiveHeight as rH,
+} from "../utils/responsive";
+
 import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 
@@ -12,6 +17,7 @@ import {
   StyledButton,
   ButtonText,
 } from "../components/styles";
+import { Container, Flex, Spacer } from "native-base";
 
 const {
   primary,
@@ -31,12 +37,10 @@ const {
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  //const { logout, isUserLoggedIn } = useContext(AuthContext);
   var permissionLevel = 0;
   var displayName = "";
 
   useEffect(() => {
-    // Verifica si hay datos de sesión guardados localmente y, si los hay, inicia sesión automáticamente
     const session = getLocalSession();
     if (session) {
       permissionLevel = session.permissionLevel;
@@ -70,16 +74,14 @@ const HomeScreen = () => {
   };
 
   return (
-    <StyledContainer>
+    <Flex>
       <StatusBar style="auto" />
-      <InnerContainer>
-        <SubTitle>{displayName}</SubTitle>
-        <SubTitle>{permissionLevel}</SubTitle>
-        <StyledButton onPress={handleLogout}>
-          <ButtonText> Logout</ButtonText>
-        </StyledButton>
-      </InnerContainer>
-    </StyledContainer>
+      <SubTitle>{displayName}</SubTitle>
+      <SubTitle>{permissionLevel}</SubTitle>
+      <StyledButton onPress={handleLogout}>
+        <ButtonText> Logout</ButtonText>
+      </StyledButton>
+    </Flex>
   );
 };
 
