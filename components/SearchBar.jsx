@@ -1,6 +1,15 @@
 import { Text, View } from "react-native";
 import React, { Component, useState } from "react";
-import { VStack, Box, Divider, Heading, Input, Icon } from "native-base";
+import {
+  VStack,
+  HStack,
+  Divider,
+  Heading,
+  Input,
+  Icon,
+  CheckIcon,
+  Select,
+} from "native-base";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "./styles";
@@ -11,36 +20,35 @@ import {
 
 const { primary, secondary, tertiary, background, text, accent, textLight } =
   Colors;
-const SearchBar = ({ ...props }) => {
+
+const SearchBar = ({ haveFilter, ...props }) => {
   const [isFocus, setIsFocus] = React.useState(false);
+
   return (
     <VStack
-      my="1"
-      ml="20"
-      space={5}
-      w="100%"
-      maxW={rW(300)}
-      divider={
-        <Box px="2">
-          <Divider />
-        </Box>
-      }
+      justifyContent={"center"}
+      //my="1"
+      //ml="20"
+      //space={5}
+      w={"90%"}
     >
-      <VStack w="100%" space={3} alignSelf="center">
+      <HStack w="100%" alignSelf="center" justifyContent={"center"}>
         <Input
+          fontSize={rW("18")}
+          selectionColor={primary}
+          variant="unstyled"
+          w="60%"
           placeholder="Buscar"
           placeholderTextColor="gray.700"
-          variant="unstyled"
-          width="100%"
-          borderRadius="12"
           borderColor={primary}
           borderWidth={1}
-          py="2"
-          px="4"
+          borderRadius={10}
+          focusOutlineColor="blue.400"
+          //py="2"
+          //px="4"
           {...props}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
-          focusOutlineColor="blue.400"
           InputLeftElement={
             <Icon
               ml="4"
@@ -50,7 +58,7 @@ const SearchBar = ({ ...props }) => {
             />
           }
         />
-      </VStack>
+      </HStack>
     </VStack>
   );
 };

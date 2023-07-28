@@ -26,7 +26,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 
 import axios from "axios";
-import { Icon, KeyboardAvoidingView, Box } from "native-base";
+import { Icon, KeyboardAvoidingView, Box, VStack, HStack } from "native-base";
 
 import { Flex, Input } from "native-base";
 
@@ -181,14 +181,7 @@ const InventoryScreen = () => {
       <SafeAreaProvider
         style={{ marginTop: insets.top, marginBottom: insets.bottom }}
       >
-        <Flex
-          style={{
-            height: "100%",
-            maxHeight: "100%",
-            marginTop: rH(35),
-            alignItems: "center",
-          }}
-        >
+        <VStack h={"100%"} maxW={"100%"} mt={rH(35)} alignItems={"center"}>
           {/* <Snackbar
             visible={isAlertVisible}
             onDismiss={hideAlert}
@@ -205,53 +198,75 @@ const InventoryScreen = () => {
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <InventoryInput
-                icon={"shopping-bag"}
-                productname={true}
-                label="Product Name"
-                value={productName}
-                onChangeText={setProductName}
-                placeholder="Nombre del producto"
-                returnKeyType="next"
-                ref={productNameRef}
-                onSubmitEditing={() => productPriceRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
-              />
-              <View style={styles.tePriceAndQty}>
-                <InventoryInput
-                  icon={"dollar-sign"}
-                  productprice={true}
-                  label="Product Price"
-                  value={productPrice}
-                  onChangeText={setProductPrice}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  returnKeyType="next"
-                  ref={productPriceRef}
-                  marginRight={10}
-                  onSubmitEditing={() => productQtyRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
-                />
-                <InventoryInput
-                  icon={"package"}
-                  productqty={true}
-                  label="Quantity"
-                  value={productQty}
-                  onChangeText={setProductQty}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  ref={productQtyRef}
-                  marginLeft={10}
-                  onSubmitEditing={handleAddProduct}
-                />
-              </View>
-
-              <StyledButton
-                inventorySubmit={true}
-                mode="contained"
-                onPress={handleAddProduct}
-                style={{ marginBottom: 45 }}
+              <VStack
+                h={rH(300)}
+                //bg="amber.100"
               >
-                <ButtonText style={styles.buttonLabel}>Add Product</ButtonText>
-              </StyledButton>
+                <VStack
+                  w="100%" //bgColor={"green.600"}
+                >
+                  <InventoryInput
+                    icon={"shopping-bag"}
+                    productname={true}
+                    label="Product Name"
+                    value={productName}
+                    onChangeText={setProductName}
+                    placeholder="Nombre del producto"
+                    returnKeyType="next"
+                    ref={productNameRef}
+                    onSubmitEditing={() => productPriceRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
+                  />
+                </VStack>
+
+                <HStack
+                  w="100%"
+                  //bgColor="amber.600"
+                  justifyContent="space-around"
+                >
+                  <VStack
+                    w={"40%"} //bgColor={"red.600"}
+                  >
+                    <InventoryInput
+                      icon={"dollar-sign"}
+                      productprice={true}
+                      label="Product Price"
+                      value={productPrice}
+                      onChangeText={setProductPrice}
+                      keyboardType="numeric"
+                      placeholder="0"
+                      returnKeyType="next"
+                      ref={productPriceRef}
+                      onSubmitEditing={() => productQtyRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
+                    />
+                  </VStack>
+                  <VStack
+                    w={"40%"} //bgColor={"blue.600"}
+                  >
+                    <InventoryInput
+                      icon={"package"}
+                      productqty={true}
+                      label="Quantity"
+                      value={productQty}
+                      onChangeText={setProductQty}
+                      keyboardType="numeric"
+                      placeholder="0"
+                      ref={productQtyRef}
+                      onSubmitEditing={handleAddProduct}
+                    />
+                  </VStack>
+                </HStack>
+                <VStack>
+                  <StyledButton
+                    inventorySubmit={true}
+                    mode="contained"
+                    onPress={handleAddProduct}
+                  >
+                    <ButtonText style={styles.buttonLabel}>
+                      Add Product
+                    </ButtonText>
+                  </StyledButton>
+                </VStack>
+              </VStack>
               <FlatList
                 style={styles.tableContainer}
                 data={inventory}
@@ -298,7 +313,7 @@ const InventoryScreen = () => {
               />
             </KeyboardAvoidingView>
           </StyledFormArea>
-        </Flex>
+        </VStack>
       </SafeAreaProvider>
     </TouchableWithoutFeedback>
   );

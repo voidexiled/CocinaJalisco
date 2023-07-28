@@ -42,6 +42,10 @@ import ReloadButton from "../components/ReloadButton";
 import { useIsFocused } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { Colors } from "../components/styles";
+import { TouchableOpacity } from "react-native-gesture-handler";
+
+//importing Lodash
+
 const { primary, secondary, tertiary, background, text, accent, textLight } =
   Colors;
 
@@ -57,6 +61,57 @@ const OrdersScreen = () => {
   const [showModal2, setShowModal2] = useState(false);
   const [showModal3, setShowModal3] = useState(false);
   const [row, setRow] = useState();
+  const [columns, setColumns] = useState([
+    "Nombre",
+    "Lugar",
+    "Descripcion",
+    "Hora",
+    "Creado por",
+    "Estado",
+  ]);
+  const [direction, setDirection] = useState(null);
+  const [selectedColumn, setSelectedColumn] = useState(null);
+
+  const handleSearch = (text) => {
+    const newData = orders.filter((item) => {
+      console.log("item :::::::", item);
+      const itemData = `${item.name} ${item.place} ${
+        item.description
+      } ${getLocalTime(item.createdAt.split(" ")[1])} ${
+        users.find((user) => user.id === item.id)?.displayName
+      } ${item._status}`.toUpperCase();
+
+      const textData = text.toUpperCase();
+      console.log("itemData :::::::", itemData);
+      console.log("textData :::::::", textData);
+      return itemData.indexOf(textData) > -1;
+    });
+    setFilteredOrders(newData);
+    loadData();
+  };
+
+  const sortTable = (columnName) => {
+    console.log("columnName :::::::", columnName);
+    const newDirection = direction === "desc" ? "asc" : "desc";
+    setSelectedColumn(columnName);
+    setDirection(newDirection);
+    setFilteredOrders((prevData) => {
+      const newData = [...prevData];
+      newData.sort((a, b) => {
+        if (newDirection === "asc") {
+          return a[columnName] < b[columnName] ? -1 : 1;
+        } else {
+          return a[columnName] > b[columnName] ? -1 : 1;
+        }
+      });
+      return newData;
+    });
+
+    console.log("originalData :::::::", orders);
+    console.log("sortedData :::::::", filteredOrders);
+
+    //setFilteredOrders(sortedData);
+  };
 
   const loadData = () => {
     setLoading(true);
@@ -106,7 +161,8 @@ const OrdersScreen = () => {
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders"
       );
       setOrders(response.data);
-      console.log("Ordenes:", response.data);
+      setFilteredOrders(response.data);
+      //console.log("Ordenes:", response.data);
       loadData();
     } catch (error) {
       console.error("Error al obtener las ordenes:", error);
@@ -213,282 +269,259 @@ const OrdersScreen = () => {
         }}
         insets={insets}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <VStack
-            style={{
-              height: "100%",
-              maxHeight: "100%",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
+        <VStack h={"100%"} maxH={"100%"}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <VStack
               style={{
-                height: rH(100),
-                minWidth: "100%",
-                maxWidth: "100%",
-                maxHeight: rH(130),
-                flexDirection: "row",
-                padding: 16,
-                justifyContent: "center",
+                height: "100%",
+                maxHeight: "100%",
               }}
             >
+              <HStack p={0} h={rH(100)} maxH={rH(100)} mx={rW(20)}>
+                <SearchBar
+                  //                fontSize={rW(21)}
+                  //               color="#000"
+                  haveFilter={true}
+                  onChangeText={(text) => {
+                    handleSearch(text);
+                  }}
+                />
+
+                <ReloadButton fetcho={fetchOrders} fetchu={fetchUsers} />
+              </HStack>
               <VStack
                 style={{
-                  height: "100%",
-
-                  maxHeight: "100%",
-                  minWidth: "80%",
-                  maxWidth: "80%",
-                  flexDirection: "row",
-                  justifyContent: "flex-start",
+                  height: rH(800),
+                  width: "100%",
                 }}
               >
-                <SearchBar
-                  fontSize={rW(21)}
-                  color="#000"
-                  onChangeText={(text) => {
-                    setSearch(text);
+                <FlatList
+                  style={styles.tableContainer}
+                  data={filteredOrders}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                  stickyHeaderIndices={[0]}
+                  ListHeaderComponentStyle={{
+                    backgroundColor: primary,
+                    borderTopLeftRadius: 10,
+                    borderTopRightRadius: 10,
                   }}
+                  ListHeaderComponent={() => (
+                    <DataTable styles={styles.datatablee}>
+                      <DataTable.Header>
+                        {columns.map((column, index) => (
+                          <DataTable.Title style={{ flex: 1 }} key={index}>
+                            <TouchableOpacity onPress={() => sortTable(column)}>
+                              <Text style={styles.headerLabelTable}>
+                                {column + " "}
+                                {selectedColumn === column && (
+                                  <Feather
+                                    name={
+                                      direction === "desc"
+                                        ? "chevron-down"
+                                        : "chevron-up"
+                                    }
+                                  />
+                                )}
+                              </Text>
+                            </TouchableOpacity>
+                          </DataTable.Title>
+                        ))}
+
+                        {/* Establecer flex para controlar el ancho de las columnas */}
+                      </DataTable.Header>
+                    </DataTable>
+                  )}
                 />
               </VStack>
 
-              <ReloadButton fetcho={fetchOrders} fetchu={fetchUsers} />
-            </VStack>
-            <VStack
-              style={{
-                height: rH(800),
-                width: "100%",
-              }}
-            >
-              <FlatList
-                style={styles.tableContainer}
-                data={orders}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                stickyHeaderIndices={[0]}
-                ListHeaderComponentStyle={{
-                  backgroundColor: primary,
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
+              <VStack
+                style={{
+                  height: rH(110),
+                  minWidth: "100%",
+                  maxWidth: "100%",
                 }}
-                ListHeaderComponent={() => (
-                  <DataTable styles={styles.datatablee}>
-                    <DataTable.Header>
-                      {/* Establecer flex para controlar el ancho de las columnas */}
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Nombre
-                      </DataTable.Title>
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Lugar
-                      </DataTable.Title>
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Descripcion
-                      </DataTable.Title>
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Hora
-                      </DataTable.Title>
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Creado por
-                      </DataTable.Title>
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Estado
-                      </DataTable.Title>
-                    </DataTable.Header>
-                  </DataTable>
-                )}
-              />
-            </VStack>
+              >
+                <Fab
+                  placement="top-right"
+                  right={10}
+                  renderInPortal={false}
+                  shadow={2}
+                  backgroundColor={primary}
+                  size="sm"
+                  icon={
+                    <Icon color="white" as={AntDesign} name="plus" size="sm" />
+                  }
+                />
+              </VStack>
 
-            <VStack
-              style={{
-                height: rH(110),
-                minWidth: "100%",
-                maxWidth: "100%",
-              }}
-            >
-              <Fab
-                placement="top-right"
-                right={10}
-                renderInPortal={false}
-                shadow={2}
-                backgroundColor={primary}
-                size="sm"
-                icon={
-                  <Icon color="white" as={AntDesign} name="plus" size="sm" />
-                }
-              />
-            </VStack>
-
-            <Modal
-              isOpen={showModal}
-              onClose={() => setShowModal(false)}
-              size="lg"
-            >
-              <Modal.Content maxWidth="350">
-                <Modal.CloseButton />
-                <Modal.Header>{"Orden #" + row.id}</Modal.Header>
-                <Modal.Body>
-                  <VStack space={3}>
-                    <HStack alignItems="center" justifyContent="space-between">
-                      <Text fontWeight="medium">Sub Total</Text>
-                      <Text color="blueGray.400">$298.77</Text>
-                    </HStack>
-                    <HStack alignItems="center" justifyContent="space-between">
-                      <Text fontWeight="medium">Tax</Text>
-                      <Text color="blueGray.400">$38.84</Text>
-                    </HStack>
-                    <HStack alignItems="center" justifyContent="space-between">
-                      <Text fontWeight="medium">Total Amount</Text>
-                      <Text color="green.500">$337.61</Text>
-                    </HStack>
-                  </VStack>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button
-                    flex="1"
-                    onPress={() => {
-                      setShowModal2(true);
-                    }}
-                  >
-                    Continue
-                  </Button>
-                </Modal.Footer>
-              </Modal.Content>
-            </Modal>
-
-            <Modal
-              isOpen={showModal2}
-              onClose={() => setShowModal2(false)}
-              size="lg"
-            >
-              <Modal.Content maxWidth="350">
-                <Modal.CloseButton />
-                <Modal.Header>Select Address</Modal.Header>
-                <Modal.Body>
-                  <Radio.Group defaultValue="address1" name="address" size="sm">
+              <Modal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                size="lg"
+              >
+                <Modal.Content maxWidth="350">
+                  <Modal.CloseButton />
+                  <Modal.Header>
+                    {row != null ? "Orden #" + row.id : "0"}
+                  </Modal.Header>
+                  <Modal.Body>
                     <VStack space={3}>
-                      <Radio
-                        alignItems="flex-start"
-                        _text={{
-                          mt: "-1",
-                          ml: "2",
-                          fontSize: "sm",
-                        }}
-                        value="address1"
+                      <HStack
+                        alignItems="center"
+                        justifyContent="space-between"
                       >
-                        4140 Parker Rd. Allentown, New Mexico 31134
-                      </Radio>
-                      <Radio
-                        alignItems="flex-start"
-                        _text={{
-                          mt: "-1",
-                          ml: "2",
-                          fontSize: "sm",
-                        }}
-                        value="address2"
+                        <Text fontWeight="medium">Sub Total</Text>
+                        <Text color="blueGray.400">$298.77</Text>
+                      </HStack>
+                      <HStack
+                        alignItems="center"
+                        justifyContent="space-between"
                       >
-                        6391 Elign St. Celina, Delaware 10299
-                      </Radio>
+                        <Text fontWeight="medium">Tax</Text>
+                        <Text color="blueGray.400">$38.84</Text>
+                      </HStack>
+                      <HStack
+                        alignItems="center"
+                        justifyContent="space-between"
+                      >
+                        <Text fontWeight="medium">Total Amount</Text>
+                        <Text color="green.500">$337.61</Text>
+                      </HStack>
                     </VStack>
-                  </Radio.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button
-                    flex="1"
-                    onPress={() => {
-                      setShowModal3(true);
-                    }}
-                  >
-                    Continue
-                  </Button>
-                </Modal.Footer>
-              </Modal.Content>
-            </Modal>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button
+                      flex="1"
+                      onPress={() => {
+                        setShowModal2(true);
+                      }}
+                    >
+                      Continue
+                    </Button>
+                  </Modal.Footer>
+                </Modal.Content>
+              </Modal>
 
-            <Modal
-              isOpen={showModal3}
-              size="lg"
-              onClose={() => setShowModal3(false)}
-            >
-              <Modal.Content maxWidth="350">
-                <Modal.CloseButton />
-                <Modal.Header>Payment Options</Modal.Header>
-                <Modal.Body>
-                  <Radio.Group name="payment" size="sm">
-                    <VStack space={3}>
-                      <Radio
-                        alignItems="flex-start"
-                        _text={{
-                          mt: "-1",
-                          ml: "2",
-                          fontSize: "sm",
-                        }}
-                        value="payment1"
-                      >
-                        Cash on delivery
-                      </Radio>
-                      <Radio
-                        alignItems="flex-start"
-                        _text={{
-                          mt: "-1",
-                          ml: "2",
-                          fontSize: "sm",
-                        }}
-                        value="payment2"
-                      >
-                        Credit/ Debit/ ATM Card
-                      </Radio>
-                      <Radio
-                        alignItems="flex-start"
-                        _text={{
-                          mt: "-1",
-                          ml: "2",
-                          fontSize: "sm",
-                        }}
-                        value="payment3"
-                      >
-                        UPI
-                      </Radio>
-                    </VStack>
-                  </Radio.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button
-                    flex="1"
-                    onPress={() => {
-                      setShowModal(false);
-                      setShowModal2(false);
-                      setShowModal3(false);
-                    }}
-                  >
-                    Checkout
-                  </Button>
-                </Modal.Footer>
-              </Modal.Content>
-            </Modal>
-          </VStack>
-        </KeyboardAvoidingView>
+              <Modal
+                isOpen={showModal2}
+                onClose={() => setShowModal2(false)}
+                size="lg"
+              >
+                <Modal.Content maxWidth="350">
+                  <Modal.CloseButton />
+                  <Modal.Header>Select Address</Modal.Header>
+                  <Modal.Body>
+                    <Radio.Group
+                      defaultValue="address1"
+                      name="address"
+                      size="sm"
+                    >
+                      <VStack space={3}>
+                        <Radio
+                          alignItems="flex-start"
+                          _text={{
+                            mt: "-1",
+                            ml: "2",
+                            fontSize: "sm",
+                          }}
+                          value="address1"
+                        >
+                          4140 Parker Rd. Allentown, New Mexico 31134
+                        </Radio>
+                        <Radio
+                          alignItems="flex-start"
+                          _text={{
+                            mt: "-1",
+                            ml: "2",
+                            fontSize: "sm",
+                          }}
+                          value="address2"
+                        >
+                          6391 Elign St. Celina, Delaware 10299
+                        </Radio>
+                      </VStack>
+                    </Radio.Group>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button
+                      flex="1"
+                      onPress={() => {
+                        setShowModal3(true);
+                      }}
+                    >
+                      Continue
+                    </Button>
+                  </Modal.Footer>
+                </Modal.Content>
+              </Modal>
+
+              <Modal
+                isOpen={showModal3}
+                size="lg"
+                onClose={() => setShowModal3(false)}
+              >
+                <Modal.Content maxWidth="350">
+                  <Modal.CloseButton />
+                  <Modal.Header>Payment Options</Modal.Header>
+                  <Modal.Body>
+                    <Radio.Group name="payment" size="sm">
+                      <VStack space={3}>
+                        <Radio
+                          alignItems="flex-start"
+                          _text={{
+                            mt: "-1",
+                            ml: "2",
+                            fontSize: "sm",
+                          }}
+                          value="payment1"
+                        >
+                          Cash on delivery
+                        </Radio>
+                        <Radio
+                          alignItems="flex-start"
+                          _text={{
+                            mt: "-1",
+                            ml: "2",
+                            fontSize: "sm",
+                          }}
+                          value="payment2"
+                        >
+                          Credit/ Debit/ ATM Card
+                        </Radio>
+                        <Radio
+                          alignItems="flex-start"
+                          _text={{
+                            mt: "-1",
+                            ml: "2",
+                            fontSize: "sm",
+                          }}
+                          value="payment3"
+                        >
+                          UPI
+                        </Radio>
+                      </VStack>
+                    </Radio.Group>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button
+                      flex="1"
+                      onPress={() => {
+                        setShowModal(false);
+                        setShowModal2(false);
+                        setShowModal3(false);
+                      }}
+                    >
+                      Checkout
+                    </Button>
+                  </Modal.Footer>
+                </Modal.Content>
+              </Modal>
+            </VStack>
+          </KeyboardAvoidingView>
+        </VStack>
       </SafeAreaProvider>
     </TouchableWithoutFeedback>
   );

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import React, { Component, useState } from "react";
-import { Container, Pressable, Icon, Button, Flex } from "native-base";
+import { Container, Pressable, Icon, Button, VStack } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "./styles";
 import {
@@ -13,13 +13,13 @@ const { primary, secondary, tertiary, background, text, accent, textLight } =
 const ReloadButton = ({ fetcho, fetchu, ...props }) => {
   const [isFocus, setIsFocus] = React.useState(false);
   return (
-    <Flex style={{}}>
+    <VStack justifyContent={"center"} m={0} p={0}>
       <Pressable>
         <Button
-          pt={2}
-          pl={0}
-          pr={0}
-          ml={rW(60)}
+          m={0}
+          p={0}
+          ml="auto"
+          mr="auto"
           variant="unstyled"
           onPress={() => {
             fetcho();
@@ -34,13 +34,13 @@ const ReloadButton = ({ fetcho, fetchu, ...props }) => {
           {...props}
         >
           <Icon
-            size={rW(30)}
+            size={rW(35)}
             color={isFocus ? "blue.400" : primary}
             as={<Ionicons name="md-reload-outline" />}
           />
         </Button>
       </Pressable>
-    </Flex>
+    </VStack>
   );
 };
 
