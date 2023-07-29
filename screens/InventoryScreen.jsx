@@ -144,8 +144,8 @@ const InventoryScreen = () => {
       );
       console.log("Response: ", response.data);
       setInventory([...inventory, response.data]);
-      setAlertMessage(`Producto ${productName} agregado correctamente.`);
-      showAlert("Producto agregado correctamente.", "success");
+      // setAlertMessage(`Producto ${productName} agregado correctamente.`);
+      // showAlert("Producto agregado correctamente.", "success");
       setProductName("");
       setProductPrice("");
       setProductQty("");
@@ -266,12 +266,12 @@ const InventoryScreen = () => {
           colorMode === "light" ? "rgba(255,255,255,0)" : Dark.background
         }
       >
-        <VStack h={"100%"} maxW={"100%"} mt={rH(35)} alignItems={"center"}>
-          <StyledFormArea height={rH(860)}>
+        <VStack h={"100%"} maxW={"100%"} mt={rH(40)} alignItems={"center"}>
+          <StyledFormArea height={"80%"}>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <Center h={rH(20)} p={0} m={0}>
+              <Center h={"20%"}>
                 <Heading p={0} m={0}>
                   Inventario
                 </Heading>
@@ -425,10 +425,10 @@ const InventoryScreen = () => {
               </Modal>
             </KeyboardAvoidingView>
           </StyledFormArea>
-          <VStack w={"full"} height={rH(110)}>
+          <VStack w={"full"} height={"20%"}>
             <Fab
-              placement="top-right"
-              right={10}
+              placement="bottom-right"
+              right={rW(20)}
               renderInPortal={false}
               shadow={2}
               bgColor={primary}

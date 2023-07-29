@@ -253,7 +253,7 @@ const OrdersScreen = () => {
         }
         insets={insets}
       >
-        <VStack h={"100%"} maxH={"100%"}>
+        <VStack h={"100%"} maxH={"100%"} mt={35}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
@@ -263,7 +263,13 @@ const OrdersScreen = () => {
                 maxHeight: "100%",
               }}
             >
-              <HStack p={0} h={rH(100)} maxH={rH(100)} mx={rW(20)}>
+              <HStack //p={0} h={rH(100)} maxH={rH(100)} mx={rW(20)}>
+                p={0}
+                h={"10%"}
+                minH={"10%"}
+                maxH="10%"
+                mx={rW(20)}
+              >
                 <SearchBar
                   //                fontSize={rW(21)}
                   //               color="#000"
@@ -276,8 +282,8 @@ const OrdersScreen = () => {
                 <ReloadButton fetcho={fetchOrders} fetchu={fetchUsers} />
               </HStack>
               <VStack
+                h={"70%"}
                 style={{
-                  height: rH(800),
                   width: "100%",
                 }}
               >
@@ -322,15 +328,15 @@ const OrdersScreen = () => {
               </VStack>
 
               <VStack
+                h="20%"
                 style={{
-                  height: rH(110),
                   minWidth: "100%",
                   maxWidth: "100%",
                 }}
+                p={0}
               >
                 <Fab
-                  placement="top-right"
-                  right={10}
+                  placement="bottom-right"
                   renderInPortal={false}
                   shadow={2}
                   backgroundColor={primary}

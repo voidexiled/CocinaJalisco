@@ -1,5 +1,4 @@
-import { Text, View } from "react-native";
-import React, { Component, useState, memo } from "react";
+import React, { memo } from "react";
 import { VStack, HStack, Input, Icon, useColorMode } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 
