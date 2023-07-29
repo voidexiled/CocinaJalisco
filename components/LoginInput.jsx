@@ -4,7 +4,7 @@ import {
 } from "../utils/responsive";
 
 import { Text, View } from "react-native";
-import React, { Component } from "react";
+import React, { Component, memo } from "react";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Colors } from "./styles";
 
@@ -45,4 +45,4 @@ const LoginInput = ({
   );
 };
 
-export default LoginInput;
+export default memo(LoginInput);

@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import React, { Component, useState } from "react";
+import React, { Component, useState, memo } from "react";
 import { Container, Pressable, Icon, Button, VStack } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "./styles";
@@ -44,4 +44,4 @@ const ReloadButton = ({ fetcho, fetchu, ...props }) => {
   );
 };
 
-export default ReloadButton;
+export default memo(ReloadButton);

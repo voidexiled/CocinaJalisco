@@ -1,18 +1,9 @@
 import { Text, View } from "react-native";
-import React, { Component, useState } from "react";
-import {
-  VStack,
-  HStack,
-  Divider,
-  Heading,
-  Input,
-  Icon,
-  CheckIcon,
-  Select,
-} from "native-base";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Colors } from "./styles";
+import React, { Component, useState, memo } from "react";
+import { VStack, HStack, Input, Icon, useColorMode } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
+
+import { Colors, Dark } from "./styles";
 import {
   responsiveHeight as rH,
   responsiveWidth as rW,
@@ -23,6 +14,7 @@ const { primary, secondary, tertiary, background, text, accent, textLight } =
 
 const SearchBar = ({ haveFilter, ...props }) => {
   const [isFocus, setIsFocus] = React.useState(false);
+  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <VStack
@@ -39,7 +31,7 @@ const SearchBar = ({ haveFilter, ...props }) => {
           variant="unstyled"
           w="60%"
           placeholder="Buscar"
-          placeholderTextColor="gray.700"
+          placeholderTextColor={colorMode === "dark" ? textLight : "gray.400"}
           borderColor={primary}
           borderWidth={1}
           borderRadius={10}
@@ -63,4 +55,4 @@ const SearchBar = ({ haveFilter, ...props }) => {
   );
 };
 
-export default SearchBar;
+export default memo(SearchBar);

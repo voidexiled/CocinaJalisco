@@ -2,106 +2,109 @@ import {
   responsiveWidth as rW,
   responsiveHeight as rH,
 } from "../utils/responsive";
-
-import React, { useState, useEffect, useRef, forwardRef } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import { TextInput, Button, DataTable, Snackbar } from "react-native-paper";
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
-import { Feather } from "@expo/vector-icons";
-import { useIsFocused } from "@react-navigation/native"; // Importa useIsFocused
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
+import { StyleSheet, FlatList, View } from "react-native";
+import { DataTable } from "react-native-paper";
+import { Feather, AntDesign } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { Keyboard } from "react-native";
 import { TouchableWithoutFeedback } from "react-native";
-import {
-  StyledContainer,
-  StyledFormArea,
-  StyledTextInput,
-  InnerContainer,
-  StyledButton,
-  ButtonText,
-  LeftIcon,
-} from "../components/styles";
+import { StyledFormArea, StyledButton, ButtonText } from "../components/styles";
 import { useNavigation } from "@react-navigation/native";
-
 import axios from "axios";
-import { Icon, KeyboardAvoidingView, Box, VStack, HStack } from "native-base";
-
-import { Flex, Input } from "native-base";
-
-const offset = Platform.OS === "android" ? -100 : 0;
-const behavior = Platform.OS === "android" ? "height" : "padding";
-
+import {
+  KeyboardAvoidingView,
+  VStack,
+  IconButton,
+  Skeleton,
+  Modal,
+  Text,
+  Fab,
+  Icon,
+  Heading,
+  Center,
+  Actionsheet,
+  useDisclose,
+  useColorMode,
+  Progress,
+  HStack,
+  Box,
+} from "native-base";
 import InventoryInput from "../components/InventoryInput";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SafeAreaView } from "react-native";
+import { Colors, Dark } from "../components/styles";
+
+const { accent, text, textLight, background, secondary, primary, tertiary } =
+  Colors;
 
 import { useToast } from "native-base";
+
 const InventoryScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productQty, setProductQty] = useState("");
-
   const productNameRef = useRef(null);
   const productPriceRef = useRef(null);
   const productQtyRef = useRef(null);
-
   const [inventory, setInventory] = useState([]);
-  const isFocused = useIsFocused(); // Usa el hook useIsFocused
-  const [isAlertVisible, setIsAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState(
-    "Porfavor llenar todos los campos."
-  );
+  const isFocused = useIsFocused();
+  const [row, setRow] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclose();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const toast = useToast();
+
+  const loadData = useCallback(() => {
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
       fetchInventory();
     }
   }, [isFocused]);
-  const showAlert = (msg, typeoftoast) => {
-    if (typeoftoast == "success") {
+
+  const showAlert = useCallback((msg, typeoftoast) => {
+    if (typeoftoast === "success") {
       toast.show({
-        render: () => {
-          return (
-            <Box bg="green.300" px="5" py="3" rounded="sm" mb={5}>
-              {msg}
-            </Box>
-          );
-        },
+        render: () => (
+          <Box bg="green.300" px="5" py="3" rounded="sm" mb={1}>
+            {msg}
+          </Box>
+        ),
       });
-    } else if (typeoftoast == "error") {
+    } else if (typeoftoast === "error") {
       toast.show({
-        render: () => {
-          return (
-            <Box bg="red.300" px="5" py="3" rounded="sm" mb={5}>
-              {msg}
-            </Box>
-          );
-        },
+        render: () => (
+          <Box bg="red.300" px="5" py="3" rounded="sm" mb={1}>
+            {msg}
+          </Box>
+        ),
       });
     }
-  };
+  }, []);
 
-  const hideAlert = () => {
-    setIsAlertVisible(false);
-  };
-
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     try {
       const response = await axios.get(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products"
       );
+      loadData();
       setInventory(response.data);
     } catch (error) {
       console.error("Error al obtener el inventario:", error);
     }
-  };
+  }, []);
 
   const handleAddProduct = async () => {
     if (!productName || !productPrice || !productQty) {
@@ -121,6 +124,20 @@ const InventoryScreen = () => {
 
     try {
       console.log(newProduct);
+
+      // const response = await axios.post(
+      //   "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products",
+      //   newProduct,
+      //   {
+      //     onUploadProgress: (progressEvent) => {
+      //       // Calcular y actualizar el progreso de la carga
+      //       const currprogress = Math.round(
+      //         (progressEvent.loaded * 100) / progressEvent.total
+      //       );
+      //       setProgress(currprogress);
+      //     },
+      //   }
+      // );
       const response = await axios.post(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products",
         newProduct
@@ -155,118 +172,110 @@ const InventoryScreen = () => {
     }
   };
 
-  const handleEditProduct = (product) => {
-    navigation.navigate("EditarProductoScreen", { product });
-  };
+  const handleEditProduct = useCallback(
+    (product) => {
+      setRow(product);
+      if (row !== null) {
+        console.log("Editando producto: ", product);
+        onOpen();
+      }
+    },
+    [onOpen, row]
+  );
 
-  const renderItem = ({ item }) => (
-    <DataTable.Row onPress={() => handleEditProduct(item)}>
-      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 2 }}>
-        {item.displayName}
-      </DataTable.Cell>
-      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 1 }}>
-        {item.qty}
-      </DataTable.Cell>
-      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 1 }}>
-        $ {item.price}
-      </DataTable.Cell>
-      <DataTable.Cell numeric textStyle={styles.labelTable} style={{ flex: 1 }}>
-        <Button icon="delete" onPress={() => handleDeleteProduct(item)} />
-      </DataTable.Cell>
-    </DataTable.Row>
+  const renderItem = useCallback(
+    ({ item }) => (
+      <DataTable.Row
+        onPress={() => handleEditProduct(item)}
+        backgroundColor={colorMode === "light" ? background : background}
+      >
+        <DataTable.Cell
+          textStyle={{ color: colorMode === "light" ? text : text }}
+          style={{ flex: 2 }}
+        >
+          {loading ? (
+            <Skeleton endColor="warmGray.400" h={3} rounded={20} width="24" />
+          ) : (
+            item.displayName
+          )}
+        </DataTable.Cell>
+        <DataTable.Cell
+          numeric
+          textStyle={styles.labelTable}
+          style={{ flex: 1 }}
+        >
+          {loading ? (
+            <Skeleton
+              endColor="warmGray.400"
+              h={3}
+              rounded={20}
+              width="12"
+              right={0}
+            />
+          ) : (
+            item.qty
+          )}
+        </DataTable.Cell>
+        <DataTable.Cell
+          numeric
+          textStyle={styles.labelTable}
+          style={{ flex: 1 }}
+        >
+          {loading ? (
+            <Skeleton
+              endColor="warmGray.400"
+              h={3}
+              rounded={20}
+              width="8"
+              right={0}
+            />
+          ) : (
+            "$ " + item.price
+          )}
+        </DataTable.Cell>
+        <DataTable.Cell
+          numeric
+          textStyle={styles.labelTable}
+          style={{ flex: 1 }}
+        >
+          {loading ? (
+            <Skeleton
+              endColor="warmGray.400"
+              h={3}
+              rounded={20}
+              width="12"
+              right={0}
+            />
+          ) : (
+            <IconButton
+              icon={<Feather color={tertiary} name="trash-2"></Feather>}
+              onPress={() => handleDeleteProduct(item)}
+            />
+          )}
+        </DataTable.Cell>
+      </DataTable.Row>
+    ),
+    [colorMode, handleDeleteProduct, handleEditProduct, loading]
   );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaProvider
-        style={{ marginTop: insets.top, marginBottom: insets.bottom }}
+        style={{ paddinTop: insets.top, paddingBottom: insets.bottom }}
+        backgroundColor={
+          colorMode === "light" ? "rgba(255,255,255,0)" : Dark.background
+        }
       >
         <VStack h={"100%"} maxW={"100%"} mt={rH(35)} alignItems={"center"}>
-          {/* <Snackbar
-            visible={isAlertVisible}
-            onDismiss={hideAlert}
-            duration={3000}
-            action={{
-              label: "OK",
-              onPress: hideAlert,
-            }}
-            zIndex={9999}
-          >
-            {alertMessage}
-          </Snackbar> */}
-          <StyledFormArea>
+          <StyledFormArea height={rH(860)}>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <VStack
-                h={rH(300)}
-                //bg="amber.100"
-              >
-                <VStack
-                  w="100%" //bgColor={"green.600"}
-                >
-                  <InventoryInput
-                    icon={"shopping-bag"}
-                    productname={true}
-                    label="Product Name"
-                    value={productName}
-                    onChangeText={setProductName}
-                    placeholder="Nombre del producto"
-                    returnKeyType="next"
-                    ref={productNameRef}
-                    onSubmitEditing={() => productPriceRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
-                  />
-                </VStack>
-
-                <HStack
-                  w="100%"
-                  //bgColor="amber.600"
-                  justifyContent="space-around"
-                >
-                  <VStack
-                    w={"40%"} //bgColor={"red.600"}
-                  >
-                    <InventoryInput
-                      icon={"dollar-sign"}
-                      productprice={true}
-                      label="Product Price"
-                      value={productPrice}
-                      onChangeText={setProductPrice}
-                      keyboardType="numeric"
-                      placeholder="0"
-                      returnKeyType="next"
-                      ref={productPriceRef}
-                      onSubmitEditing={() => productQtyRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
-                    />
-                  </VStack>
-                  <VStack
-                    w={"40%"} //bgColor={"blue.600"}
-                  >
-                    <InventoryInput
-                      icon={"package"}
-                      productqty={true}
-                      label="Quantity"
-                      value={productQty}
-                      onChangeText={setProductQty}
-                      keyboardType="numeric"
-                      placeholder="0"
-                      ref={productQtyRef}
-                      onSubmitEditing={handleAddProduct}
-                    />
-                  </VStack>
-                </HStack>
-                <VStack>
-                  <StyledButton
-                    inventorySubmit={true}
-                    mode="contained"
-                    onPress={handleAddProduct}
-                  >
-                    <ButtonText style={styles.buttonLabel}>
-                      Add Product
-                    </ButtonText>
-                  </StyledButton>
-                </VStack>
-              </VStack>
+              <Center h={rH(20)} p={0} m={0}>
+                <Heading p={0} m={0}>
+                  Inventario
+                </Heading>
+              </Center>
               <FlatList
                 style={styles.tableContainer}
                 data={inventory}
@@ -274,14 +283,15 @@ const InventoryScreen = () => {
                 keyExtractor={(item, index) => index.toString()}
                 stickyHeaderIndices={[0]}
                 ListHeaderComponentStyle={{
-                  backgroundColor: "#111111",
+                  backgroundColor:
+                    colorMode === "light" ? primary : Dark.primary,
+                  marginTop: 0,
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
                 }}
                 ListHeaderComponent={() => (
                   <DataTable styles={styles.datatablee}>
                     <DataTable.Header>
-                      {/* Establecer flex para controlar el ancho de las columnas */}
                       <DataTable.Title
                         textStyle={styles.headerLabelTable}
                         style={{ flex: 2 }}
@@ -289,12 +299,14 @@ const InventoryScreen = () => {
                         Nombre
                       </DataTable.Title>
                       <DataTable.Title
+                        numeric
                         textStyle={styles.headerLabelTable}
                         style={{ flex: 1 }}
                       >
                         Existencia
                       </DataTable.Title>
                       <DataTable.Title
+                        numeric
                         textStyle={styles.headerLabelTable}
                         style={{ flex: 1 }}
                       >
@@ -311,9 +323,155 @@ const InventoryScreen = () => {
                   </DataTable>
                 )}
               />
+
+              <Modal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                size="lg"
+              >
+                <Modal.Content maxWidth="350">
+                  <Modal.CloseButton />
+                  <Modal.Header>Añadir Producto</Modal.Header>
+                  <Modal.Body>
+                    <VStack
+                      h={rH(150)}
+                      //bg="amber.100"
+                    >
+                      <VStack
+                        w="100%" //bgColor={"green.600"}
+                      >
+                        <InventoryInput
+                          icon={"shopping-bag"}
+                          productname={true}
+                          label="Product Name"
+                          value={productName}
+                          onChangeText={setProductName}
+                          placeholder="Nombre del producto"
+                          returnKeyType="next"
+                          ref={productNameRef}
+                          onSubmitEditing={() =>
+                            productPriceRef.current.focus()
+                          } // Mueve el foco al siguiente campo en el onSubmitEditing
+                        />
+                      </VStack>
+
+                      <HStack
+                        w="100%"
+                        //bgColor="amber.600"
+                        justifyContent="space-around"
+                      >
+                        <VStack
+                          w={"40%"} //bgColor={"red.600"}
+                        >
+                          <InventoryInput
+                            icon={"dollar-sign"}
+                            productprice={true}
+                            label="Product Price"
+                            value={productPrice}
+                            onChangeText={setProductPrice}
+                            keyboardType="numeric"
+                            placeholder="0"
+                            returnKeyType="next"
+                            ref={productPriceRef}
+                            onSubmitEditing={() =>
+                              productQtyRef.current.focus()
+                            } // Mueve el foco al siguiente campo en el onSubmitEditing
+                          />
+                        </VStack>
+                        <VStack
+                          w={"40%"} //bgColor={"blue.600"}
+                        >
+                          <InventoryInput
+                            icon={"package"}
+                            productqty={true}
+                            label="Quantity"
+                            value={productQty}
+                            onChangeText={setProductQty}
+                            keyboardType="numeric"
+                            placeholder="0"
+                            ref={productQtyRef}
+                            onSubmitEditing={handleAddProduct}
+                          />
+                        </VStack>
+                      </HStack>
+                      <VStack w="100%" pt={rH(4)}>
+                        <Box width="100%">
+                          <Progress value={0} />
+                        </Box>
+                      </VStack>
+                      {/* <VStack w="100%" alignItems={"center"}>
+
+                </VStack> */}
+                    </VStack>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <VStack
+                      w="100%"
+                      alignItems={"center"}
+                      justifyContent={"center"}
+                    >
+                      <StyledButton
+                        inventorySubmit={true}
+                        mode="contained"
+                        onPress={handleAddProduct}
+                      >
+                        <ButtonText style={styles.buttonLabel}>
+                          Add Product
+                        </ButtonText>
+                      </StyledButton>
+                    </VStack>
+                  </Modal.Footer>
+                </Modal.Content>
+              </Modal>
             </KeyboardAvoidingView>
           </StyledFormArea>
+          <VStack w={"full"} height={rH(110)}>
+            <Fab
+              placement="top-right"
+              right={10}
+              renderInPortal={false}
+              shadow={2}
+              bgColor={primary}
+              icon={<Icon as={AntDesign} name="plus" />}
+              onPress={() => setShowModal(true)}
+            />
+          </VStack>
         </VStack>
+        <Actionsheet
+          isOpen={isOpen}
+          onClose={onClose}
+          size="full"
+          hideDragIndicator
+        >
+          <Actionsheet.Content>
+            <Box w="100%" h={60} px={4} justifyContent="center">
+              <Text
+                fontSize="16"
+                color="gray.500"
+                _dark={{
+                  color: "gray.300",
+                }}
+              >
+                {row &&
+                  row.displayName +
+                    "      PRECIO:  $" +
+                    row.price +
+                    "      CANTIDAD:   " +
+                    row.qty}
+              </Text>
+            </Box>
+            <Actionsheet.Item
+              startIcon={<Icon as={Feather} size="6" name="edit" />}
+            >
+              Editar
+            </Actionsheet.Item>
+            <Actionsheet.Item
+              startIcon={<Icon as={Feather} name="trash-2" size="6" />}
+            >
+              Eliminar
+            </Actionsheet.Item>
+          </Actionsheet.Content>
+        </Actionsheet>
       </SafeAreaProvider>
     </TouchableWithoutFeedback>
   );
@@ -336,10 +494,8 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
   },
   tableContainer: {
-    backgroundColor: "#212121",
     borderRadius: 10,
-    elevation: 10,
-    maxHeight: rH(500),
+    maxHeight: rH(720),
   },
   icon: {
     top: rH(20),
@@ -355,15 +511,16 @@ const styles = StyleSheet.create({
   headerLabelTable: {
     fontSize: rW(14),
     color: "#fff",
+    textAlign: "left",
   },
   labelTable: {
-    color: "#fff",
+    color: tertiary,
   },
   deleteIcon: {
     color: "#000",
   },
   footer: {
-    height: rH(100), // Espacio para el pie de página de la tabla
+    height: rH(100),
   },
   textInput: {
     height: rH(50),
@@ -372,23 +529,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const MyTextInput = forwardRef(({ label, icon, ...props }, ref) => {
-  const [isFocused, setIsFocused] = useState(false);
-
-  const handleFocus = () => setIsFocused(true);
-  const handleBlur = () => setIsFocused(false);
-  return (
-    <Input
-      InputLeftElement={
-        <Icon as={<Feather name={icon} />} size={rW(24)} ml="2" color="#fff" />
-      }
-      {...props}
-      ref={ref} // Asigna la referencia proporcionada al TextInput
-      placeholderTextColor="rgba(221,221,221,0.6)"
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-    />
-  );
-});
-
-export default InventoryScreen;
+export default memo(InventoryScreen);

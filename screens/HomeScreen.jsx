@@ -17,7 +17,7 @@ import {
   StyledButton,
   ButtonText,
 } from "../components/styles";
-import { Container, Flex, Spacer } from "native-base";
+import { Container, Flex, Spacer, useColorMode } from "native-base";
 
 const {
   primary,
@@ -37,6 +37,7 @@ const {
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { colorMode, toggleColorMode } = useColorMode();
   var permissionLevel = 0;
   var displayName = "";
 
@@ -79,7 +80,10 @@ const HomeScreen = () => {
       <SubTitle>{displayName}</SubTitle>
       <SubTitle>{permissionLevel}</SubTitle>
       <StyledButton onPress={handleLogout}>
-        <ButtonText> Logout</ButtonText>
+        <ButtonText>Logout</ButtonText>
+      </StyledButton>
+      <StyledButton onPress={toggleColorMode}>
+        <ButtonText> Mode</ButtonText>
       </StyledButton>
     </Flex>
   );

@@ -25,7 +25,7 @@ export default function CustomAlert({ message }) {
               <CloseIcon fontSize="inherit" />
             </IconButton>
           }
-          sx={{ mb: 2 }}
+          sx={{ mb: 0 }}
         >
           {message}
         </Alert>

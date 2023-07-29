@@ -4,9 +4,23 @@ import {
   responsiveWidth as rW,
   responsiveHeight as rH,
 } from "../utils/responsive";
+import { useColorModeValue } from "native-base";
 const StatusBarHeight = Constants.statusBarHeight;
 
 // colors
+
+// export const primary = useColorModeValue("#FF6F61", "#FF6F61"); // Coral
+// export const secondary = useColorModeValue("#FFBA49", "#FFBA49"); // Amarillo
+// export const tertiary = useColorModeValue("#3D405B", "#3D405B"); // Azul oscuro
+// export const accent = useColorModeValue("#5FC3E4", "#5FC3E4"); // Celeste
+// export const background = useColorModeValue("#fff", "#000"); // Crema claro
+// export const brand = useColorModeValue("#277DA1", "#277DA1"); // Azul
+// export const text = useColorModeValue("#4A4E69", "#4A4E69"); // Azul grisáceo
+// export const textLight = useColorModeValue("#9A8C98", "#9A8C98"); // Gris claro
+// export const border = useColorModeValue("#E9E9E9", "#E9E9E9"); // Gris suave
+// export const success = useColorModeValue("#5ECC62", "#5ECC62"); // Verde claro
+// export const error = useColorModeValue("#FF453A", "#FF453A"); // Rojo
+// export const warning = useColorModeValue("#FF9642", "#FF9642"); // Naranja
 
 export const Colors = {
   primary: "#FF6F61", // Coral
@@ -16,6 +30,20 @@ export const Colors = {
   background: "#fff", // Crema claro
   brand: "#277DA1", // Azul
   text: "#4A4E69", // Azul grisáceo
+  textLight: "#9A8C98", // Gris claro
+  border: "#E9E9E9", // Gris suave
+  success: "#5ECC62", // Verde claro
+  error: "#FF453A", // Rojo
+  warning: "#FF9642", // Naranja
+};
+export const Dark = {
+  primary: "#FF6F61", // Coral
+  secondary: "#050300", // Negro
+  tertiary: "#3D405B", // Azul oscuro
+  accent: "#e1f4fa", // Blanco
+  background: "#4A4E69", // Gris
+  brand: "#277DA1", // Azul
+  text: "#fff", // Azul grisáceo
   textLight: "#9A8C98", // Gris claro
   border: "#E9E9E9", // Gris suave
   success: "#5ECC62", // Verde claro
@@ -164,9 +192,12 @@ export const StyledButton = styled.TouchableOpacity`
   ${(props) =>
     props.inventorySubmit &&
     `
-    background-color: ${error};
-
-    height: ${rH(55)}px;
+    background-color: ${secondary};
+    height: ${rH(50)}px;
+    width: ${rW(180)}px;
+    border-radius: 18px;
+    text-align: center;
+    
   `}
 `;
 

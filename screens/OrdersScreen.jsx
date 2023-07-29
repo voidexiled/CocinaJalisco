@@ -2,34 +2,24 @@ import {
   responsiveWidth as rW,
   responsiveHeight as rH,
 } from "../utils/responsive";
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import { TouchableWithoutFeedback } from "react-native";
-import { Keyboard, StyleSheet } from "react-native";
-import { FlatList } from "react-native";
+import { Keyboard, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import axios from "axios";
-import { getUserNameById as nameById } from "../utils/api";
-import { STATUS } from "../utils/orderStatus";
+
 import {
   VStack,
   HStack,
-  ZStack,
-  Container,
-  Flex,
   Icon,
-  Input,
   KeyboardAvoidingView,
-  Pressable,
-  Heading,
   Button,
   Skeleton,
-  Center,
-  Box,
   Fab,
-  Actionsheet,
   Text,
-  useDisclose,
   Modal,
   Radio,
+  useColorMode,
 } from "native-base";
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { DataTable } from "react-native-paper";
@@ -39,27 +29,19 @@ import {
 } from "react-native-safe-area-context";
 import SearchBar from "../components/SearchBar";
 import ReloadButton from "../components/ReloadButton";
-import { useIsFocused } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
-import { Colors } from "../components/styles";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Colors, Dark } from "../components/styles";
 
-//importing Lodash
-
-const { primary, secondary, tertiary, background, text, accent, textLight } =
-  Colors;
+const { primary, tertiary, background, text, secondary } = Colors;
 
 const OrdersScreen = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = React.useState("");
+  const [search, setSearch] = useState("");
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [showModal2, setShowModal2] = useState(false);
-  const [showModal3, setShowModal3] = useState(false);
+
   const [row, setRow] = useState();
   const [columns, setColumns] = useState([
     "Nombre",
@@ -71,60 +53,58 @@ const OrdersScreen = () => {
   ]);
   const [direction, setDirection] = useState(null);
   const [selectedColumn, setSelectedColumn] = useState(null);
+  const { colorMode, toggleColorMode } = useColorMode();
 
-  const handleSearch = (text) => {
-    const newData = orders.filter((item) => {
-      console.log("item :::::::", item);
-      const itemData = `${item.name} ${item.place} ${
-        item.description
-      } ${getLocalTime(item.createdAt.split(" ")[1])} ${
-        users.find((user) => user.id === item.id)?.displayName
-      } ${item._status}`.toUpperCase();
+  const handleSearch = useCallback(
+    (text) => {
+      const newData = orders.filter((item) => {
+        const itemData = `${item.name} ${item.place} ${
+          item.description
+        } ${getLocalTime(item.createdAt.split(" ")[1])} ${
+          users.find((user) => user.id === item.id)?.displayName
+        } ${item._status}`.toUpperCase();
 
-      const textData = text.toUpperCase();
-      console.log("itemData :::::::", itemData);
-      console.log("textData :::::::", textData);
-      return itemData.indexOf(textData) > -1;
-    });
-    setFilteredOrders(newData);
-    loadData();
-  };
-
-  const sortTable = (columnName) => {
-    console.log("columnName :::::::", columnName);
-    const newDirection = direction === "desc" ? "asc" : "desc";
-    setSelectedColumn(columnName);
-    setDirection(newDirection);
-    setFilteredOrders((prevData) => {
-      const newData = [...prevData];
-      newData.sort((a, b) => {
-        if (newDirection === "asc") {
-          return a[columnName] < b[columnName] ? -1 : 1;
-        } else {
-          return a[columnName] > b[columnName] ? -1 : 1;
-        }
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
       });
-      return newData;
-    });
+      setFilteredOrders(newData);
+      loadData();
+    },
+    [orders, users]
+  );
 
-    console.log("originalData :::::::", orders);
-    console.log("sortedData :::::::", filteredOrders);
+  const sortTable = useCallback(
+    (columnName) => {
+      const newDirection = direction === "desc" ? "asc" : "desc";
+      setSelectedColumn(columnName);
+      setDirection(newDirection);
+      setFilteredOrders((prevData) => {
+        const newData = [...prevData];
+        newData.sort((a, b) => {
+          if (newDirection === "asc") {
+            return a[columnName] < b[columnName] ? -1 : 1;
+          } else {
+            return a[columnName] > b[columnName] ? -1 : 1;
+          }
+        });
+        return newData;
+      });
+    },
+    [direction]
+  );
 
-    //setFilteredOrders(sortedData);
-  };
-
-  const loadData = () => {
+  const loadData = useCallback(() => {
     setLoading(true);
 
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-  };
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 2000);
   }, []);
 
   useEffect(() => {
@@ -133,6 +113,7 @@ const OrdersScreen = () => {
       fetchOrders();
     }
   }, [isFocused]);
+
   const getLocalTime = (time) => {
     time = time.split(":");
 
@@ -155,7 +136,7 @@ const OrdersScreen = () => {
     timeValue += hours >= 12 ? " PM" : " AM";
     return timeValue;
   };
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const response = await axios.get(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders"
@@ -167,8 +148,8 @@ const OrdersScreen = () => {
     } catch (error) {
       console.error("Error al obtener las ordenes:", error);
     }
-  };
-  const fetchUsers = async () => {
+  }, []);
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/users"
@@ -177,18 +158,18 @@ const OrdersScreen = () => {
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
     }
-  };
+  }, []);
 
-  const handleOpenRowOrder = (item) => {
+  const handleOpenRowOrder = useCallback((item) => {
     setRow(item);
-    setShowModal(true);
-  };
+    //setShowModal(true);
+  }, []);
   const renderItem = ({ item }) => (
-    <DataTable.Row onPress={() => handleOpenRowOrder(item)}>
-      <DataTable.Cell
-        textStyle={([styles.labelTable], { color: "#000" })}
-        style={{ flex: 1 }}
-      >
+    <DataTable.Row
+      onPress={() => handleOpenRowOrder(item)}
+      backgroundColor={colorMode === "light" ? background : background}
+    >
+      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 1 }}>
         {loading ? (
           <Skeleton
             endColor="warmGray.500"
@@ -267,6 +248,9 @@ const OrdersScreen = () => {
           paddingLeft: insets.left,
           paddingRight: insets.right,
         }}
+        backgroundColor={
+          colorMode === "light" ? "rgba(255,255,255,0)" : Dark.background
+        }
         insets={insets}
       >
         <VStack h={"100%"} maxH={"100%"}>
@@ -356,169 +340,6 @@ const OrdersScreen = () => {
                   }
                 />
               </VStack>
-
-              <Modal
-                isOpen={showModal}
-                onClose={() => setShowModal(false)}
-                size="lg"
-              >
-                <Modal.Content maxWidth="350">
-                  <Modal.CloseButton />
-                  <Modal.Header>
-                    {row != null ? "Orden #" + row.id : "0"}
-                  </Modal.Header>
-                  <Modal.Body>
-                    <VStack space={3}>
-                      <HStack
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <Text fontWeight="medium">Sub Total</Text>
-                        <Text color="blueGray.400">$298.77</Text>
-                      </HStack>
-                      <HStack
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <Text fontWeight="medium">Tax</Text>
-                        <Text color="blueGray.400">$38.84</Text>
-                      </HStack>
-                      <HStack
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <Text fontWeight="medium">Total Amount</Text>
-                        <Text color="green.500">$337.61</Text>
-                      </HStack>
-                    </VStack>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button
-                      flex="1"
-                      onPress={() => {
-                        setShowModal2(true);
-                      }}
-                    >
-                      Continue
-                    </Button>
-                  </Modal.Footer>
-                </Modal.Content>
-              </Modal>
-
-              <Modal
-                isOpen={showModal2}
-                onClose={() => setShowModal2(false)}
-                size="lg"
-              >
-                <Modal.Content maxWidth="350">
-                  <Modal.CloseButton />
-                  <Modal.Header>Select Address</Modal.Header>
-                  <Modal.Body>
-                    <Radio.Group
-                      defaultValue="address1"
-                      name="address"
-                      size="sm"
-                    >
-                      <VStack space={3}>
-                        <Radio
-                          alignItems="flex-start"
-                          _text={{
-                            mt: "-1",
-                            ml: "2",
-                            fontSize: "sm",
-                          }}
-                          value="address1"
-                        >
-                          4140 Parker Rd. Allentown, New Mexico 31134
-                        </Radio>
-                        <Radio
-                          alignItems="flex-start"
-                          _text={{
-                            mt: "-1",
-                            ml: "2",
-                            fontSize: "sm",
-                          }}
-                          value="address2"
-                        >
-                          6391 Elign St. Celina, Delaware 10299
-                        </Radio>
-                      </VStack>
-                    </Radio.Group>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button
-                      flex="1"
-                      onPress={() => {
-                        setShowModal3(true);
-                      }}
-                    >
-                      Continue
-                    </Button>
-                  </Modal.Footer>
-                </Modal.Content>
-              </Modal>
-
-              <Modal
-                isOpen={showModal3}
-                size="lg"
-                onClose={() => setShowModal3(false)}
-              >
-                <Modal.Content maxWidth="350">
-                  <Modal.CloseButton />
-                  <Modal.Header>Payment Options</Modal.Header>
-                  <Modal.Body>
-                    <Radio.Group name="payment" size="sm">
-                      <VStack space={3}>
-                        <Radio
-                          alignItems="flex-start"
-                          _text={{
-                            mt: "-1",
-                            ml: "2",
-                            fontSize: "sm",
-                          }}
-                          value="payment1"
-                        >
-                          Cash on delivery
-                        </Radio>
-                        <Radio
-                          alignItems="flex-start"
-                          _text={{
-                            mt: "-1",
-                            ml: "2",
-                            fontSize: "sm",
-                          }}
-                          value="payment2"
-                        >
-                          Credit/ Debit/ ATM Card
-                        </Radio>
-                        <Radio
-                          alignItems="flex-start"
-                          _text={{
-                            mt: "-1",
-                            ml: "2",
-                            fontSize: "sm",
-                          }}
-                          value="payment3"
-                        >
-                          UPI
-                        </Radio>
-                      </VStack>
-                    </Radio.Group>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button
-                      flex="1"
-                      onPress={() => {
-                        setShowModal(false);
-                        setShowModal2(false);
-                        setShowModal3(false);
-                      }}
-                    >
-                      Checkout
-                    </Button>
-                  </Modal.Footer>
-                </Modal.Content>
-              </Modal>
             </VStack>
           </KeyboardAvoidingView>
         </VStack>
@@ -564,7 +385,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   labelTable: {
-    color: "#212121",
+    color: tertiary,
   },
   deleteIcon: {
     color: "#000",
@@ -579,4 +400,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrdersScreen;
+export default memo(OrdersScreen);

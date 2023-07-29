@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { Input, Icon } from "native-base";
 import { Feather } from "@expo/vector-icons";
 import { forwardRef } from "react";
@@ -9,7 +9,8 @@ import {
 } from "../utils/responsive";
 import { StyleSheet } from "react-native";
 import { Colors } from "./styles";
-const { accent, text, background } = Colors;
+const { accent, text, textLight, background, secondary, primary, tertiary } =
+  Colors;
 
 const InventoryInput = forwardRef(({ label, icon, ...props }, ref) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -19,25 +20,30 @@ const InventoryInput = forwardRef(({ label, icon, ...props }, ref) => {
   return (
     <View style={[styles.inputContainer]}>
       <Input
-        backgroundColor="#212121"
+        variant={"unstyled"}
+        //backgroundColor="#212121"
         borderRadius={12}
-        padding={15}
-        paddingLeft={rW(35)}
-        paddingRight={rW(35)}
+        paddingLeft={rW(25)}
+        paddingRight={rW(25)}
         fontSize={rW(16)}
-        height={rH(50)}
-        marginVertical={3}
-        elevation={15}
-        color="#fff"
-        borderWidth={0}
-        minWidth={rW(150)}
+        //height={rH(50)}
+        height={rH(45)}
+        //marginVertical={3}
+        //elevation={15}
+        //color="#fff"
+        //borderWidth={0}
+        minWidth={rW(100)}
         placeholder={label}
+        color={tertiary}
+        borderColor={primary}
+        focusOutlineColor={"blue.600"}
+        borderWidth={1}
         InputLeftElement={
-          <Icon as={<Feather name={icon} />} size={5} ml="3" color="#fff" />
+          <Icon as={<Feather name={icon} />} size={5} ml="3" color={primary} />
         }
         {...props}
         ref={ref} // Asigna la referencia proporcionada al TextInput
-        placeholderTextColor="rgba(221,221,221,0.6)"
+        placeholderTextColor={textLight}
         onFocus={handleFocus}
         onBlur={handleBlur}
       />
@@ -65,4 +71,4 @@ const styles = StyleSheet.create({
     margin: "auto",
   },
 });
-export default InventoryInput;
+export default memo(InventoryInput);
