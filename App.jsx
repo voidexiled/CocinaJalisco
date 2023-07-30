@@ -25,6 +25,7 @@ import {
 import { NativeBaseProvider, Text, Box } from "native-base";
 
 import { LogBox } from "react-native";
+import OrderDetailsScreen from "./screens/OrderDetailsScreen";
 LogBox.ignoreLogs([
   "In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.",
 ]);
@@ -54,6 +55,14 @@ const App = () => {
               name="EditarProductoScreen"
               component={EditarProductoScreen}
               options={{ title: "Editar Producto" }}
+            />
+            <Stack.Screen
+              name="OrderDetailsScreen"
+              component={OrderDetailsScreen}
+              options={{
+                title: "Detalles de orden",
+                ...TransitionPresets.FadeFromBottomAndroid,
+              }}
             />
 
             {/* Aquí puedes agregar más pantallas */}

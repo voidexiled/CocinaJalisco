@@ -28,24 +28,24 @@ import { Ionicons } from "@expo/vector-icons";
 
 const MainTabNavigatorScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
   const layout = useWindowDimensions();
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "home", title: "Configuracion" },
-    { key: "inventory", title: "Inventario" },
     { key: "orders", title: "Pedidos" },
+    { key: "inventory", title: "Inventario" },
   ]);
 
   const renderScene = useCallback(({ route, jumpTo }) => {
     switch (route.key) {
       case "home":
         return <HomeScreen />;
-      case "inventory":
-        return <InventoryScreen />;
       case "orders":
         return <OrdersScreen />;
+      case "inventory":
+        return <InventoryScreen />;
+
       default:
         return <HomeScreen />;
     }
@@ -78,11 +78,11 @@ const MainTabNavigatorScreen = ({ navigation }) => {
             case "home":
               iconName = focused ? "settings" : "settings-outline";
               break;
-            case "inventory":
-              iconName = focused ? "desktop" : "desktop-outline";
-              break;
             case "orders":
               iconName = focused ? "cart" : "cart-outline";
+              break;
+            case "inventory":
+              iconName = focused ? "desktop" : "desktop-outline";
               break;
             default:
               iconName = "circle";

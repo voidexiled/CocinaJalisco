@@ -30,9 +30,11 @@ import SearchBar from "../components/SearchBar";
 import ReloadButton from "../components/ReloadButton";
 import { Colors, Dark } from "../components/styles";
 import AppContainer from "../components/AppContainer";
+import { useNavigation } from "@react-navigation/native";
 const { primary, tertiary, background, text, secondary } = Colors;
 
 const OrdersScreen = () => {
+  const navigation = useNavigation();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [users, setUsers] = useState([]);
@@ -41,8 +43,8 @@ const OrdersScreen = () => {
   const isFocused = useIsFocused();
   const [loading, setLoading] = useState(true);
 
-  const [row, setRow] = useState();
-  const { isOpen, onOpen, onClose } = useDisclose();
+  const [row, setRow] = useState({});
+  const disclosure = useDisclose();
   const [columns, setColumns] = useState([
     "Nombre",
     "Lugar",
@@ -161,8 +163,11 @@ const OrdersScreen = () => {
   }, []);
 
   const handleOpenRowOrder = useCallback((item) => {
+    console.log("Item:", item);
     setRow(item);
-    onOpen();
+    disclosure.onOpen();
+    console.log("Row:", row);
+    //navigation.navigate("OrderDetailsScreen");
   }, []);
   const renderItem = ({ item }) => (
     <DataTable.Row
@@ -324,8 +329,8 @@ const OrdersScreen = () => {
           />
         </VStack>
         <Actionsheet
-          isOpen={isOpen}
-          onClose={onClose}
+          isOpen={disclosure.isOpen}
+          onClose={disclosure.onClose}
           size="full"
           hideDragIndicator
         >
@@ -342,6 +347,13 @@ const OrdersScreen = () => {
               </Text>
             </Box>
             <Actionsheet.Item
+              onPress={() => {
+                navigation.navigate("OrderDetailsScreen", {
+                  rowData: row,
+                  users: users,
+                });
+                disclosure.onClose();
+              }}
               startIcon={<Icon as={Feather} size="6" name="menu" />}
             >
               Ver detalles
@@ -357,12 +369,19 @@ const OrdersScreen = () => {
             >
               Eliminar
             </Actionsheet.Item>
+            <Actionsheet.Item
+              onPress={disclosure.onClose}
+              startIcon={<Icon as={Feather} name="x" size={6} />}
+            >
+              Cerrar
+            </Actionsheet.Item>
           </Actionsheet.Content>
         </Actionsheet>
       </Container>
     </AppContainer>
   );
 };
+
 const styles = StyleSheet.create({
   datatablee: {
     height: "auto",
