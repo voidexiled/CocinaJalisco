@@ -8,19 +8,19 @@ import { VStack } from "native-base";
 import { Dark } from "../components/styles";
 
 const AppContainer = ({
+  bagColor,
   colorMode,
   insets,
   alignItems,
   children,
   ...props
 }) => {
+  if (!bagColor) bagColor = "rgba(255,255,255,0)";
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaProvider
-        style={{ marginTop: insets.top, marginBottom: insets.bottom }}
-        backgroundColor={
-          colorMode === "light" ? "rgba(255,255,255,0)" : Dark.background
-        }
+        style={{ paddingTop: insets.top, marginBottom: insets.bottom }}
+        backgroundColor={colorMode === "light" ? bagColor : Dark.background}
       >
         <VStack
           h={"100%"}
