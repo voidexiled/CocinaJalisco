@@ -3,14 +3,13 @@ import {
   responsiveHeight as rH,
 } from "../utils/responsive";
 import React, { useState, useEffect, useRef, useCallback, memo } from "react";
-import { StyleSheet, FlatList, View } from "react-native";
+import { StyleSheet, FlatList } from "react-native";
 import { DataTable } from "react-native-paper";
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
-import { Keyboard } from "react-native";
-import { TouchableWithoutFeedback } from "react-native";
 import { StyledFormArea, StyledButton, ButtonText } from "../components/styles";
 import { useNavigation } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
 import axios from "axios";
 import {
   KeyboardAvoidingView,
@@ -29,12 +28,12 @@ import {
   Progress,
   HStack,
   Box,
+  Container,
 } from "native-base";
 import InventoryInput from "../components/InventoryInput";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors, Dark } from "../components/styles";
-
+import AppContainer from "../components/AppContainer";
 const { accent, text, textLight, background, secondary, primary, tertiary } =
   Colors;
 
@@ -60,6 +59,9 @@ const InventoryScreen = () => {
 
   const toast = useToast();
 
+  useEffect(() => {
+    console.log(StatusBar.currentHeight);
+  }, []);
   const loadData = useCallback(() => {
     setLoading(true);
 
@@ -77,6 +79,7 @@ const InventoryScreen = () => {
   const showAlert = useCallback((msg, typeoftoast) => {
     if (typeoftoast === "success") {
       toast.show({
+        placement: "top",
         render: () => (
           <Box bg="green.300" px="5" py="3" rounded="sm" mb={1}>
             {msg}
@@ -85,6 +88,7 @@ const InventoryScreen = () => {
       });
     } else if (typeoftoast === "error") {
       toast.show({
+        placement: "top",
         render: () => (
           <Box bg="red.300" px="5" py="3" rounded="sm" mb={1}>
             {msg}
@@ -124,28 +128,13 @@ const InventoryScreen = () => {
 
     try {
       console.log(newProduct);
-
-      // const response = await axios.post(
-      //   "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products",
-      //   newProduct,
-      //   {
-      //     onUploadProgress: (progressEvent) => {
-      //       // Calcular y actualizar el progreso de la carga
-      //       const currprogress = Math.round(
-      //         (progressEvent.loaded * 100) / progressEvent.total
-      //       );
-      //       setProgress(currprogress);
-      //     },
-      //   }
-      // );
       const response = await axios.post(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products",
         newProduct
       );
       console.log("Response: ", response.data);
       setInventory([...inventory, response.data]);
-      // setAlertMessage(`Producto ${productName} agregado correctamente.`);
-      // showAlert("Producto agregado correctamente.", "success");
+      showAlert("Producto agregado correctamente.", "success");
       setProductName("");
       setProductPrice("");
       setProductQty("");
@@ -259,184 +248,176 @@ const InventoryScreen = () => {
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaProvider
-        style={{ paddinTop: insets.top, paddingBottom: insets.bottom }}
-        backgroundColor={
-          colorMode === "light" ? "rgba(255,255,255,0)" : Dark.background
-        }
-      >
-        <VStack h={"100%"} maxW={"100%"} mt={rH(40)} alignItems={"center"}>
-          <StyledFormArea height={"80%"}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-              <Center h={"20%"}>
-                <Heading p={0} m={0}>
-                  Inventario
-                </Heading>
-              </Center>
-              <FlatList
-                style={styles.tableContainer}
-                data={inventory}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                stickyHeaderIndices={[0]}
-                ListHeaderComponentStyle={{
-                  backgroundColor:
-                    colorMode === "light" ? primary : Dark.primary,
-                  marginTop: 0,
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
-                }}
-                ListHeaderComponent={() => (
-                  <DataTable styles={styles.datatablee}>
-                    <DataTable.Header>
-                      <DataTable.Title
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 2 }}
-                      >
-                        Nombre
-                      </DataTable.Title>
-                      <DataTable.Title
-                        numeric
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Existencia
-                      </DataTable.Title>
-                      <DataTable.Title
-                        numeric
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Precio
-                      </DataTable.Title>
-                      <DataTable.Title
-                        numeric
-                        textStyle={styles.headerLabelTable}
-                        style={{ flex: 1 }}
-                      >
-                        Eliminar
-                      </DataTable.Title>
-                    </DataTable.Header>
-                  </DataTable>
-                )}
-              />
+    <AppContainer
+      colorMode={colorMode}
+      insets={insets}
+      alignItems={"center"}
+      bgColor
+    >
+      <Container h="100%" minW="90%">
+        {/* TOP Container*/}
+        <VStack minW="100%" h={"80%"}>
+          <Center h={"10%"}>
+            <Heading p={0} m={0}>
+              Inventario
+            </Heading>
+          </Center>
+          <FlatList
+            style={styles.tableContainer}
+            data={inventory}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            stickyHeaderIndices={[0]}
+            ListHeaderComponentStyle={{
+              backgroundColor: colorMode === "light" ? primary : Dark.primary,
+              marginTop: 0,
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+            }}
+            ListHeaderComponent={() => (
+              <DataTable styles={styles.datatablee}>
+                <DataTable.Header>
+                  <DataTable.Title
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 2 }}
+                  >
+                    Nombre
+                  </DataTable.Title>
+                  <DataTable.Title
+                    numeric
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 1 }}
+                  >
+                    Existencia
+                  </DataTable.Title>
+                  <DataTable.Title
+                    numeric
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 1 }}
+                  >
+                    Precio
+                  </DataTable.Title>
+                  <DataTable.Title
+                    numeric
+                    textStyle={styles.headerLabelTable}
+                    style={{ flex: 1 }}
+                  >
+                    Eliminar
+                  </DataTable.Title>
+                </DataTable.Header>
+              </DataTable>
+            )}
+          />
 
-              <Modal
-                isOpen={showModal}
-                onClose={() => setShowModal(false)}
-                size="lg"
-              >
-                <Modal.Content maxWidth="350">
-                  <Modal.CloseButton />
-                  <Modal.Header>Añadir Producto</Modal.Header>
-                  <Modal.Body>
+          <Modal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            size="lg"
+          >
+            <Modal.Content minW={"70%"} maxW={"70%"}>
+              <Modal.CloseButton />
+              <Modal.Header>Añadir Producto</Modal.Header>
+              <Modal.Body>
+                <VStack
+                  h={rH(150)}
+                  //bg="amber.100"
+                >
+                  <VStack
+                    w="100%" //bgColor={"green.600"}
+                  >
+                    <InventoryInput
+                      icon={"shopping-bag"}
+                      productname={true}
+                      label="Product Name"
+                      value={productName}
+                      onChangeText={setProductName}
+                      placeholder="Nombre del producto"
+                      returnKeyType="next"
+                      ref={productNameRef}
+                      onSubmitEditing={() => productPriceRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
+                    />
+                  </VStack>
+
+                  <HStack
+                    w="100%"
+                    //bgColor="amber.600"
+                    justifyContent="space-around"
+                  >
                     <VStack
-                      h={rH(150)}
-                      //bg="amber.100"
+                      w={"40%"} //bgColor={"red.600"}
                     >
-                      <VStack
-                        w="100%" //bgColor={"green.600"}
-                      >
-                        <InventoryInput
-                          icon={"shopping-bag"}
-                          productname={true}
-                          label="Product Name"
-                          value={productName}
-                          onChangeText={setProductName}
-                          placeholder="Nombre del producto"
-                          returnKeyType="next"
-                          ref={productNameRef}
-                          onSubmitEditing={() =>
-                            productPriceRef.current.focus()
-                          } // Mueve el foco al siguiente campo en el onSubmitEditing
-                        />
-                      </VStack>
-
-                      <HStack
-                        w="100%"
-                        //bgColor="amber.600"
-                        justifyContent="space-around"
-                      >
-                        <VStack
-                          w={"40%"} //bgColor={"red.600"}
-                        >
-                          <InventoryInput
-                            icon={"dollar-sign"}
-                            productprice={true}
-                            label="Product Price"
-                            value={productPrice}
-                            onChangeText={setProductPrice}
-                            keyboardType="numeric"
-                            placeholder="0"
-                            returnKeyType="next"
-                            ref={productPriceRef}
-                            onSubmitEditing={() =>
-                              productQtyRef.current.focus()
-                            } // Mueve el foco al siguiente campo en el onSubmitEditing
-                          />
-                        </VStack>
-                        <VStack
-                          w={"40%"} //bgColor={"blue.600"}
-                        >
-                          <InventoryInput
-                            icon={"package"}
-                            productqty={true}
-                            label="Quantity"
-                            value={productQty}
-                            onChangeText={setProductQty}
-                            keyboardType="numeric"
-                            placeholder="0"
-                            ref={productQtyRef}
-                            onSubmitEditing={handleAddProduct}
-                          />
-                        </VStack>
-                      </HStack>
-                      <VStack w="100%" pt={rH(4)}>
-                        <Box width="100%">
-                          <Progress value={0} />
-                        </Box>
-                      </VStack>
-                      {/* <VStack w="100%" alignItems={"center"}>
+                      <InventoryInput
+                        icon={"dollar-sign"}
+                        productprice={true}
+                        label="Product Price"
+                        value={productPrice}
+                        onChangeText={setProductPrice}
+                        keyboardType="numeric"
+                        placeholder="0"
+                        returnKeyType="next"
+                        ref={productPriceRef}
+                        onSubmitEditing={() => productQtyRef.current.focus()} // Mueve el foco al siguiente campo en el onSubmitEditing
+                      />
+                    </VStack>
+                    <VStack
+                      w={"40%"} //bgColor={"blue.600"}
+                    >
+                      <InventoryInput
+                        icon={"package"}
+                        productqty={true}
+                        label="Quantity"
+                        value={productQty}
+                        onChangeText={setProductQty}
+                        keyboardType="numeric"
+                        placeholder="0"
+                        ref={productQtyRef}
+                        onSubmitEditing={handleAddProduct}
+                      />
+                    </VStack>
+                  </HStack>
+                  <VStack w="100%" pt={rH(4)}>
+                    <Box width="100%">
+                      <Progress value={0} />
+                    </Box>
+                  </VStack>
+                  {/* <VStack w="100%" alignItems={"center"}>
 
                 </VStack> */}
-                    </VStack>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <VStack
-                      w="100%"
-                      alignItems={"center"}
-                      justifyContent={"center"}
-                    >
-                      <StyledButton
-                        inventorySubmit={true}
-                        mode="contained"
-                        onPress={handleAddProduct}
-                      >
-                        <ButtonText style={styles.buttonLabel}>
-                          Add Product
-                        </ButtonText>
-                      </StyledButton>
-                    </VStack>
-                  </Modal.Footer>
-                </Modal.Content>
-              </Modal>
-            </KeyboardAvoidingView>
-          </StyledFormArea>
-          <VStack w={"full"} height={"20%"}>
-            <Fab
-              placement="bottom-right"
-              right={rW(20)}
-              renderInPortal={false}
-              shadow={2}
-              bgColor={primary}
-              icon={<Icon as={AntDesign} name="plus" />}
-              onPress={() => setShowModal(true)}
-            />
-          </VStack>
+                </VStack>
+              </Modal.Body>
+              <Modal.Footer>
+                <VStack
+                  w="100%"
+                  alignItems={"center"}
+                  justifyContent={"center"}
+                >
+                  <StyledButton
+                    inventorySubmit={true}
+                    mode="contained"
+                    onPress={handleAddProduct}
+                  >
+                    <ButtonText style={styles.buttonLabel}>
+                      Add Product
+                    </ButtonText>
+                  </StyledButton>
+                </VStack>
+              </Modal.Footer>
+            </Modal.Content>
+          </Modal>
         </VStack>
+        {/* BOTTOM Container*/}
+        <VStack minW="100%" h={"20%"}>
+          <Fab
+            placement="bottom-right"
+            right={rW(20)}
+            renderInPortal={false}
+            shadow={2}
+            bgColor={primary}
+            icon={<Icon as={AntDesign} name="plus" />}
+            onPress={() => setShowModal(true)}
+          />
+        </VStack>
+        {/* ActionSheet Select Row */}
         <Actionsheet
           isOpen={isOpen}
           onClose={onClose}
@@ -446,7 +427,7 @@ const InventoryScreen = () => {
           <Actionsheet.Content>
             <Box w="100%" h={60} px={4} justifyContent="center">
               <Text
-                fontSize="16"
+                fontSize={rW(20)}
                 color="gray.500"
                 _dark={{
                   color: "gray.300",
@@ -472,8 +453,8 @@ const InventoryScreen = () => {
             </Actionsheet.Item>
           </Actionsheet.Content>
         </Actionsheet>
-      </SafeAreaProvider>
-    </TouchableWithoutFeedback>
+      </Container>
+    </AppContainer>
   );
 };
 
@@ -495,6 +476,7 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     borderRadius: 10,
+    paddingTop: 24,
     maxHeight: rH(720),
   },
   icon: {
@@ -514,6 +496,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   labelTable: {
+    fontSize: rW(14),
     color: tertiary,
   },
   deleteIcon: {

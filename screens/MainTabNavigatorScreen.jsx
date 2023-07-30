@@ -33,7 +33,7 @@ const MainTabNavigatorScreen = ({ navigation }) => {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: "home", title: "Principal" },
+    { key: "home", title: "Configuracion" },
     { key: "inventory", title: "Inventario" },
     { key: "orders", title: "Pedidos" },
   ]);
@@ -76,10 +76,10 @@ const MainTabNavigatorScreen = ({ navigation }) => {
           let iconName;
           switch (route.key) {
             case "home":
-              iconName = focused ? "home" : "home-outline";
+              iconName = focused ? "settings" : "settings-outline";
               break;
             case "inventory":
-              iconName = focused ? "list" : "list-outline";
+              iconName = focused ? "desktop" : "desktop-outline";
               break;
             case "orders":
               iconName = focused ? "cart" : "cart-outline";

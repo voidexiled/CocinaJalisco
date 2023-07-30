@@ -3,8 +3,7 @@ import {
   responsiveHeight as rH,
 } from "../utils/responsive";
 import React, { useState, useEffect, useCallback, memo } from "react";
-import { TouchableWithoutFeedback } from "react-native";
-import { Keyboard, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import axios from "axios";
 
@@ -12,14 +11,14 @@ import {
   VStack,
   HStack,
   Icon,
-  KeyboardAvoidingView,
-  Button,
   Skeleton,
   Fab,
   Text,
-  Modal,
-  Radio,
   useColorMode,
+  useDisclose,
+  Actionsheet,
+  Container,
+  Box,
 } from "native-base";
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { DataTable } from "react-native-paper";
@@ -30,7 +29,7 @@ import {
 import SearchBar from "../components/SearchBar";
 import ReloadButton from "../components/ReloadButton";
 import { Colors, Dark } from "../components/styles";
-
+import AppContainer from "../components/AppContainer";
 const { primary, tertiary, background, text, secondary } = Colors;
 
 const OrdersScreen = () => {
@@ -43,6 +42,7 @@ const OrdersScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const [row, setRow] = useState();
+  const { isOpen, onOpen, onClose } = useDisclose();
   const [columns, setColumns] = useState([
     "Nombre",
     "Lugar",
@@ -162,7 +162,7 @@ const OrdersScreen = () => {
 
   const handleOpenRowOrder = useCallback((item) => {
     setRow(item);
-    //setShowModal(true);
+    onOpen();
   }, []);
   const renderItem = ({ item }) => (
     <DataTable.Row
@@ -240,117 +240,127 @@ const OrdersScreen = () => {
     </DataTable.Row>
   );
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaProvider
-        style={{
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }}
-        backgroundColor={
-          colorMode === "light" ? "rgba(255,255,255,0)" : Dark.background
-        }
-        insets={insets}
-      >
-        <VStack h={"100%"} maxH={"100%"} mt={35}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <VStack
-              style={{
-                height: "100%",
-                maxHeight: "100%",
-              }}
-            >
-              <HStack //p={0} h={rH(100)} maxH={rH(100)} mx={rW(20)}>
-                p={0}
-                h={"10%"}
-                minH={"10%"}
-                maxH="10%"
-                mx={rW(20)}
-              >
-                <SearchBar
-                  //                fontSize={rW(21)}
-                  //               color="#000"
-                  haveFilter={true}
-                  onChangeText={(text) => {
-                    handleSearch(text);
-                  }}
-                />
+    <AppContainer colorMode={colorMode} insets={insets} alignItems={"center"}>
+      <Container h="100%" minW="90%">
+        <HStack //p={0} h={rH(100)} maxH={rH(100)} mx={rW(20)}>
+          h={"10%"}
+          minH={"10%"}
+          maxH="10%"
+          minW={"100%"}
+          px={rW(20)}
+          //bgColor={"#000"}
+        >
+          <SearchBar
+            fontSize={rW(18)}
+            //               color="#000"
+            haveFilter={true}
+            onChangeText={(text) => {
+              handleSearch(text);
+            }}
+          />
 
-                <ReloadButton fetcho={fetchOrders} fetchu={fetchUsers} />
-              </HStack>
-              <VStack
-                h={"70%"}
-                style={{
-                  width: "100%",
-                }}
-              >
-                <FlatList
-                  style={styles.tableContainer}
-                  data={filteredOrders}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => index.toString()}
-                  stickyHeaderIndices={[0]}
-                  ListHeaderComponentStyle={{
-                    backgroundColor: primary,
-                    borderTopLeftRadius: 10,
-                    borderTopRightRadius: 10,
-                  }}
-                  ListHeaderComponent={() => (
-                    <DataTable styles={styles.datatablee}>
-                      <DataTable.Header>
-                        {columns.map((column, index) => (
-                          <DataTable.Title style={{ flex: 1 }} key={index}>
-                            <TouchableOpacity onPress={() => sortTable(column)}>
-                              <Text style={styles.headerLabelTable}>
-                                {column + " "}
-                                {selectedColumn === column && (
-                                  <Feather
-                                    name={
-                                      direction === "desc"
-                                        ? "chevron-down"
-                                        : "chevron-up"
-                                    }
-                                  />
-                                )}
-                              </Text>
-                            </TouchableOpacity>
-                          </DataTable.Title>
-                        ))}
+          <ReloadButton fetcho={fetchOrders} fetchu={fetchUsers} />
+        </HStack>
+        <VStack
+          h={"70%"}
+          w={"100%"}
+          //</Container>bgColor={"#0f0"}
+        >
+          <FlatList
+            style={styles.tableContainer}
+            data={filteredOrders}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            stickyHeaderIndices={[0]}
+            ListHeaderComponentStyle={{
+              backgroundColor: primary,
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+            }}
+            ListHeaderComponent={() => (
+              <DataTable styles={styles.datatablee}>
+                <DataTable.Header>
+                  {columns.map((column, index) => (
+                    <DataTable.Title style={{ flex: 1 }} key={index}>
+                      <TouchableOpacity onPress={() => sortTable(column)}>
+                        <Text style={styles.headerLabelTable}>
+                          {column + " "}
+                          {selectedColumn === column && (
+                            <Feather
+                              name={
+                                direction === "desc"
+                                  ? "chevron-down"
+                                  : "chevron-up"
+                              }
+                            />
+                          )}
+                        </Text>
+                      </TouchableOpacity>
+                    </DataTable.Title>
+                  ))}
 
-                        {/* Establecer flex para controlar el ancho de las columnas */}
-                      </DataTable.Header>
-                    </DataTable>
-                  )}
-                />
-              </VStack>
-
-              <VStack
-                h="20%"
-                style={{
-                  minWidth: "100%",
-                  maxWidth: "100%",
-                }}
-                p={0}
-              >
-                <Fab
-                  placement="bottom-right"
-                  renderInPortal={false}
-                  shadow={2}
-                  backgroundColor={primary}
-                  size="sm"
-                  icon={
-                    <Icon color="white" as={AntDesign} name="plus" size="sm" />
-                  }
-                />
-              </VStack>
-            </VStack>
-          </KeyboardAvoidingView>
+                  {/* Establecer flex para controlar el ancho de las columnas */}
+                </DataTable.Header>
+              </DataTable>
+            )}
+          />
         </VStack>
-      </SafeAreaProvider>
-    </TouchableWithoutFeedback>
+
+        <VStack
+          h="20%"
+          style={{
+            minWidth: "100%",
+            maxWidth: "100%",
+          }}
+          p={0}
+        >
+          <Fab
+            placement="bottom-right"
+            renderInPortal={false}
+            shadow={2}
+            backgroundColor={primary}
+            size="sm"
+            icon={<Icon color="white" as={AntDesign} name="plus" size="sm" />}
+          />
+        </VStack>
+        <Actionsheet
+          isOpen={isOpen}
+          onClose={onClose}
+          size="full"
+          hideDragIndicator
+        >
+          <Actionsheet.Content>
+            <Box w="100%" h={60} px={4} justifyContent="center">
+              <Text
+                fontSize={rW(20)}
+                color="gray.500"
+                _dark={{
+                  color: "gray.300",
+                }}
+              >
+                {row && "CLIENTE:      " + row.name}
+              </Text>
+            </Box>
+            <Actionsheet.Item
+              startIcon={<Icon as={Feather} size="6" name="menu" />}
+            >
+              Ver detalles
+            </Actionsheet.Item>
+
+            <Actionsheet.Item
+              startIcon={<Icon as={Feather} size="6" name="edit" />}
+            >
+              Editar
+            </Actionsheet.Item>
+            <Actionsheet.Item
+              startIcon={<Icon as={Feather} name="trash-2" size="6" />}
+            >
+              Eliminar
+            </Actionsheet.Item>
+          </Actionsheet.Content>
+        </Actionsheet>
+      </Container>
+    </AppContainer>
   );
 };
 const styles = StyleSheet.create({
@@ -371,7 +381,7 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     borderRadius: 10,
-    padding: 24,
+    paddingTop: 24,
     maxHeight: rH(500),
   },
   icon: {
@@ -391,6 +401,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   labelTable: {
+    fontSize: rW(14),
     color: tertiary,
   },
   deleteIcon: {

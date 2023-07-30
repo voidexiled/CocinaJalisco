@@ -188,7 +188,7 @@ export const StyledButton = styled.TouchableOpacity`
   margin-vertical: 5px;
   height: ${rH(60)}px;
   align-items: center;
-
+  font-size: ${rW(14)}px;
   ${(props) =>
     props.inventorySubmit &&
     `
@@ -197,6 +197,7 @@ export const StyledButton = styled.TouchableOpacity`
     width: ${rW(180)}px;
     border-radius: 18px;
     text-align: center;
+
     
   `}
 `;
