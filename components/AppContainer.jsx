@@ -6,6 +6,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { KeyboardAvoidingView } from "native-base";
 import { VStack } from "native-base";
 import { Dark } from "../components/styles";
+import {
+  responsiveHeight as rH,
+  responsiveWidth as rW,
+} from "../utils/responsive";
 
 const AppContainer = ({
   bagColor,
@@ -25,7 +29,7 @@ const AppContainer = ({
         <VStack
           h={"100%"}
           maxW={"100%"}
-          mt={Platform.OS === "ios" ? 40 : 0}
+          mt={Platform.OS === "ios" ? rH(10) : 0}
           alignItems={alignItems}
           {...props}
         >

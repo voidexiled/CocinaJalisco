@@ -31,6 +31,9 @@ import { getLocalTime } from "../utils/util";
 import { StyleSheet } from "react-native";
 import { DataTable } from "react-native-paper";
 import { TouchableOpacity } from "react-native";
+import ProductSelect from "../components/ProductSelect";
+import QtySelect from "../components/QtySelect";
+import OverviewOrder from "../components/OverviewOrder";
 const {
   primary,
   secondary,
@@ -53,10 +56,15 @@ const OrderDetailsScreen = () => {
   const [ordComponents, setOrdComponents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inventory, setInventory] = useState([]);
+  const [newProduct, setNewProduct] = useState("key0");
   // Obtener el parámetro 'rowData' de la ruta para acceder a los datos pasados
   const row = route.params?.rowData || {};
   const users = route.params?.users || {};
-  const columns = ["Name", "Cantidad", "Precio", "Creado por"];
+  const columns = ["Nombre", "Cantidad", "Precio", "Creado por"];
+  const ovData = [
+    { name: "Tamal de puerco x2", value: "$30" },
+    { name: "Tamal de picadillo x3", value: "$45" },
+  ];
 
   const fetchInventory = useCallback(async () => {
     const response = await fetch(
@@ -163,117 +171,88 @@ const OrderDetailsScreen = () => {
       alignItems={"center"}
       bagColor={"#fff"}
     >
-      <Container h="100%" minW="90%" bgColor={"success.100"}>
-        <VStack minW={"100%"} minH={"75%"} bgColor={"error.100"} p={0} m={0}>
-          {/** container top */}
-          <VStack
-            p={4}
-            minW={"100%"}
-            minH={"25%"}
-            justifyContent={"center"}
-            rounded={"xl"}
-            space={2}
-            bgColor={"warning.100"}
-          >
-            <VStack minW={"100%"} minH={"5%"} justifyContent={"center"}>
-              {/** Order # Container */}
-              <Center>
-                <Heading fontSize={rW(44)} color={tertiary}>
-                  {"Order #" + row.id}
-                </Heading>
-              </Center>
-            </VStack>
-
-            <VStack minW={"100%"} minH={"20%"} divider={<Divider />}>
-              {/** Order Details Container */}
-              <HStack minW={"100%"} minH={"25%"}>
-                <VStack minW={"100%"} maxW={"100%"}>
-                  <Detail
-                    title={"CLIENTE"}
-                    color={"blue.700"}
-                    value={row.name}
-                  />
-                  <Detail title={"LUGAR"} color={"red.700"} value={row.place} />
-                  <Detail
-                    title={"DESCRIPCION"}
-                    color={"green.700"}
-                    value={row.description}
-                  />
-                  <Detail
-                    title={"HORA"}
-                    color={"violet.700"}
-                    value={getLocalTime(row.createdAt.split(" ")[1])}
-                  />
-                  <Detail
-                    title={"TOMADA POR"}
-                    color={"cyan.700"}
-                    value={users.find((user) => user.id === row.id).displayName}
-                  />
-
-                  <Detail
-                    title={"ESTADO"}
-                    color={"red.700"}
-                    value={row._status}
-                  />
-                </VStack>
-              </HStack>
-            </VStack>
-          </VStack>
-          <VStack
-            minW={"100%"}
-            minH={"40%"}
-            justifyContent={"center"}
-            bgColor={"amber.100"}
-          >
-            <FlatList
-              style={styles.tableContainer}
-              data={ordComponents}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-              stickyHeaderIndices={[0]}
-              ListHeaderComponentStyle={{
-                backgroundColor: primary,
-                borderTopLeftRadius: 10,
-                borderTopRightRadius: 10,
-              }}
-              ListHeaderComponent={() => (
-                <DataTable styles={styles.datatablee}>
-                  <DataTable.Header>
-                    {columns.map((column, index) => (
-                      <DataTable.Title
-                        style={{ flex: 1 }}
-                        key={index}
-                        numeric={true}
-                        {...(index === 0 && { numeric: false })}
-                      >
-                        <Text style={styles.headerLabelTable}>{column}</Text>
-                      </DataTable.Title>
-                    ))}
-
-                    {/* Establecer flex para controlar el ancho de las columnas */}
-                  </DataTable.Header>
-                </DataTable>
-              )}
-            />
-          </VStack>
+      <Container h="100%" minW="100%" bgColor={"success.100"}></Container>
+      {/* BOTTOM CONTAINER  */}
+      <VStack
+        position={"absolute"}
+        bottom={0}
+        left={0}
+        w={"100%"}
+        h={"60%"}
+        flexShrink={0}
+        bgColor={"#885B5E"}
+        roundedTop={55}
+        shadow={5}
+        elevation={5}
+        alignItems={"center"}
+      >
+        <VStack
+          w={"100%"}
+          h={"10%"}
+          justifyContent={"center"}
+          alignItems={"center"}
+        >
+          <Heading color={"#fff"} fontSize={rW(30)}>
+            {"Orden de " + row.name}
+          </Heading>
         </VStack>
-        <VStack minW={"100%"} minH={"20%"} bgColor={"blue.100"}></VStack>
-      </Container>
+        <VStack w={"100%"} h={"15%"}>
+          <HStack
+            minW={"100%"}
+            h={"50%"}
+            justifyContent={"space-around"}
+            alignItems={"center"}
+          >
+            <Detail header="Lugar:" child={row.place} />
+            <Detail
+              header="Hora:"
+              child={getLocalTime(row.createdAt.split(" ")[1])}
+            />
+            <Detail header="Estado:" child={row._status} />
+          </HStack>
+          <HStack
+            w={"100%"}
+            h={"50%"}
+            justifyContent={"space-around"}
+            alignItems={"center"}
+          >
+            <Detail header="Descripción: " child={row.description} />
+            <Detail
+              header="Tomada por: "
+              child={
+                users.find((user) => user.id === row.createdBy)?.displayName
+              }
+            />
+          </HStack>
+        </VStack>
+        <HStack
+          w="100%"
+          minH={"10%"}
+          maxH={"10%"}
+          justifyContent={"space-evenly"}
+        >
+          <ProductSelect
+            inventory={inventory}
+            newProduct={newProduct}
+            setNewProduct={setNewProduct}
+          />
+          <QtySelect />
+        </HStack>
+        <OverviewOrder ovData={ovData}></OverviewOrder>
+      </VStack>
     </AppContainer>
   );
 };
 
-const Detail = ({ title, value, color }) => {
-  const titleFontSize = rW(20);
-  const valueFontSize = rW(16);
+const Detail = ({ header, child }) => {
   return (
     <>
-      <HStack alignItems={"center"}>
-        <Text color={color} fontSize={titleFontSize}>
-          {title + ":   "}
+      <HStack>
+        <Text bold style={styles.headerValue}>
+          {header}{" "}
         </Text>
-        <Text color={tertiary} fontSize={valueFontSize}>
-          {value}
+        <Text bold style={styles.childValue}>
+          {child}
         </Text>
       </HStack>
     </>
@@ -315,6 +294,14 @@ const TableContainer = ({ children }) => {
 };
 
 const styles = StyleSheet.create({
+  headerValue: {
+    color: "#fff",
+    fontSize: rW(20),
+  },
+  childValue: {
+    color: "#fff",
+    fontSize: rW(16),
+  },
   datatablee: {
     height: "auto",
   },
