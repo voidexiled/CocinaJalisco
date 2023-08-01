@@ -2,44 +2,41 @@ import { View } from "react-native";
 import {
   responsiveHeight as rH,
   responsiveWidth as rW,
+  responsiveSize as rS,
 } from "../utils/responsive";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getLocalPermissionLevel } from "../utils/session";
-import React, {
-  Component,
-  memo,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+
+import React, { memo, useCallback, useEffect, useState } from "react";
 import AppContainer from "../components/AppContainer";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  Container,
   VStack,
   HStack,
   Text,
   useColorMode,
-  Center,
   Heading,
-  Divider,
   Box,
-  Popover,
-  Input,
-  Button,
   useToast,
   Stack,
-  IconButton,
+  Actionsheet,
   Icon,
+  useDisclose,
+  AlertDialog,
+  Button,
+  Input,
+  Center,
+  Container,
+  Select,
+  Modal,
+  IconButton,
 } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
-import { FlatList, Skeleton } from "native-base";
+import { Skeleton } from "native-base";
 import { Colors, Dark } from "../components/styles";
 import { getLocalTime } from "../utils/util";
 import { StyleSheet } from "react-native";
 import { DataTable } from "react-native-paper";
-import { TouchableOpacity } from "react-native";
 import ProductSelect from "../components/ProductSelect";
 import QtySelect from "../components/QtySelect";
 import OverviewOrder from "../components/OverviewOrder";
@@ -81,6 +78,12 @@ const OrderDetailsScreen = () => {
   const [permissionLevel, setPermissionLevel] = useState();
   const [userId, setUserId] = useState();
   const [anottation, setAnottation] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
+  const [showModal3, setShowModal3] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState({});
+  const [orderTotal, setOrderTotal] = useState(0);
+
   const toast = useToast();
   useEffect(() => {
     navigation.setOptions({
@@ -89,17 +92,22 @@ const OrderDetailsScreen = () => {
     getLocalSession();
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
-  }, []);
-  useEffect(() => {
-    setTimeout(() => {
-      fetchOverview();
-    }, 1100);
+      calculateOrderTotal();
+    }, 1000);
   }, []);
 
   useEffect(() => {
+    fetchInventory();
     fetchOrderComponents();
   }, []);
+
+  const calculateOrderTotal = useCallback(() => {
+    let total = 0;
+    ordComponents.forEach((item) => {
+      total += item.total;
+    });
+    setOrderTotal(total);
+  }, [ordComponents]);
 
   const showAlert = useCallback((msg, typeoftoast) => {
     if (typeoftoast === "success") {
@@ -142,10 +150,25 @@ const OrderDetailsScreen = () => {
       console.log(e);
     }
   };
+  const handleDeleteOrderComponent = useCallback(async () => {
+    try {
+      const response = await axios.delete(
+        `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/components/${selectedProduct.id}`
+      );
+      if (response.status === 200) {
+        showAlert("Producto eliminado con éxito", "success");
+        setShowModal(false);
+        fetchOrderComponents();
+      }
+    } catch (error) {
+      console.log(error);
+      showAlert("Error al eliminar el producto", "error");
+    }
+  }, [selectedProduct]);
   const handleFinishOrder = useCallback(() => {}, []);
   const handleUpdateOverview = useCallback(() => {}, []);
 
-  const handleAddNewProduct = useCallback(() => {
+  const handleAddNewProduct = useCallback(async () => {
     // newProduct
     // newProductQty
 
@@ -155,59 +178,63 @@ const OrderDetailsScreen = () => {
       displayName: newProduct,
       qty: Number(newProductQty),
       description: anottation,
+      total:
+        Number(newProductQty) *
+        Number(inventory.find((item) => item.displayName === newProduct).price),
     };
     console.log("Objeto nuevo: ", newProductObj);
-
+    if (newProduct === "") {
+      showAlert("Debe seleccionar un producto", "error");
+      return;
+    }
+    if (newProductQty === "") {
+      showAlert("Debe seleccionar una cantidad", "error");
+      return;
+    }
+    if (newProductQty === 0) {
+      showAlert("Debe seleccionar una cantidad mayor a 0", "error");
+      return;
+    }
+    if (
+      newProductQty >
+      inventory.find((item) => item.displayName === newProduct).qty
+    ) {
+      showAlert("No hay suficiente stock", "error");
+      return;
+    }
     try {
-      const response = axios.post(
+      const id = inventory.find((item) => item.displayName === newProduct).id;
+      const tempInvObj = {
+        qty:
+          Number(
+            inventory.find((item) => item.displayName === newProduct).qty
+          ) - Number(newProductQty),
+      };
+      console.log("Objeto temporal de inventario: ", tempInvObj);
+      const responseToInventory = await axios.patch(
+        `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products/qty/${id}`,
+        tempInvObj
+      );
+
+      const response = await axios.post(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/components",
         newProductObj
       );
-      fetchOverview();
-      fetchOrderComponents();
-      console.log("Producto agregado con éxito:", response);
+
+      fetchInventory();
+
+      console.log("Producto agregado con éxito:", response.data);
+      console.log("Inventario actualizado:", responseToInventory.data);
       showAlert("Producto agregado con éxito", "success");
+
+      setOrdComponents([...ordComponents, response.data]);
+
+      setNewProductQty(1);
     } catch (error) {
       console.log("Error al agregar el nuevo producto:", error);
       showAlert("Error al agregar el nuevo producto", "error");
     }
-  }, [newProduct, newProductQty, row.id, userId, fetchOverview, anottation]);
-
-  const fetchOverview = useCallback(async () => {
-    try {
-      const response = await axios.get(
-        `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/${row.id}/components`
-      );
-      let temp = [];
-      const dataOrder = response.data;
-      fetchInventory();
-      dataOrder.map((item) => {
-        temp.push({
-          id: item.id,
-          name: item.displayName,
-          qty: item.qty,
-          price: inventory.find((i) => i.displayName === item.displayName)
-            .price,
-        });
-      });
-      temp.push({
-        id: "total",
-        name: "Total",
-        qty: dataOrder.reduce((a, b) => a + b.qty, 0),
-        price: dataOrder.reduce(
-          (a, b) =>
-            a +
-            inventory.find((i) => i.displayName === b.displayName).price *
-              b.qty,
-          0
-        ),
-      });
-
-      setOvData(temp);
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+  }, [newProduct, newProductQty, row.id, userId, fetchInventory, anottation]);
 
   const fetchOrderComponents = useCallback(async () => {
     try {
@@ -231,31 +258,18 @@ const OrderDetailsScreen = () => {
     }
   }, []);
 
-  const loadData = useCallback(() => {
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
-
-  const getLocalUserId = useCallback(async () => {
-    try {
-      const sessionDataString = await AsyncStorage.getItem("sessionData");
-      if (sessionDataString !== null) {
-        const sessionData = JSON.parse(sessionDataString);
-        return sessionData.id;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.error("Error al obtener los datos de sesión5:", error);
-    }
-  }, []);
-
-  const renderItem = ({ item }) => (
+  const renderItem = useCallback(({ item }) => (
     <DataTable.Row
-      onPress={() => handleOpenRowOrder(item)}
+      onPress={() => {
+        setSelectedProduct(item);
+        setShowModal(true);
+        // sumar todos los totales de los componentes
+        // const tempTotal = ordComponents.reduce(
+        //   (acc, item) => acc + item.total,
+        //   0
+        // );
+        // setOrderTotal(tempTotal);
+      }}
       backgroundColor={colorMode === "light" ? background : background}
     >
       <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 2 }}>
@@ -310,7 +324,7 @@ const OrderDetailsScreen = () => {
         )}
       </DataTable.Cell>
     </DataTable.Row>
-  );
+  ));
 
   return (
     <AppContainer
@@ -345,7 +359,7 @@ const OrderDetailsScreen = () => {
             justifyContent={"center"}
             alignItems={"center"}
           >
-            <Heading color={"#fff"} fontSize={rW(24)}>
+            <Heading color={"#fff"} fontSize={rS(12)}>
               {"Orden de " + row.name}
             </Heading>
           </VStack>
@@ -399,7 +413,7 @@ const OrderDetailsScreen = () => {
             />
           </HStack>
           <OverviewOrder
-            ovData={ovData}
+            ovData={ordComponents}
             handleUpdateOverview={handleUpdateOverview}
           ></OverviewOrder>
           <HStack
@@ -425,6 +439,125 @@ const OrderDetailsScreen = () => {
           </HStack>
         </VStack>
       </Stack>
+
+      {/*ALERT DIALOG*/}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="lg">
+        <Modal.Content maxWidth="350">
+          <Modal.CloseButton
+            onPress={() => {
+              setShowModal(false);
+            }}
+          />
+          <Modal.Header>Order</Modal.Header>
+          <Modal.Body>
+            <VStack space={3}>
+              {/* {ordComponents.map((item, index) => {
+                return (
+                  <HStack
+                    key={index}
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Text fontWeight="medium">
+                      {item.displayName} x {item.qty}
+                    </Text>
+                    <Text color="blueGray.400">${item.total}</Text>
+                  </HStack>
+                );
+              })} */}
+              <HStack alignItems="center" justifyContent="space-between">
+                <Text fontWeight="medium">
+                  {selectedProduct.displayName + " x " + selectedProduct.qty}
+                </Text>
+                <Text color="blueGray.400">$ {selectedProduct.total}</Text>
+              </HStack>
+
+              <HStack alignItems="center" justifyContent="space-between">
+                <Text fontWeight="medium">Total Amount</Text>
+                <Text color="green.500">$ {selectedProduct.total}</Text>
+              </HStack>
+            </VStack>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <IconButton
+              mx="2"
+              flex="1"
+              colorScheme={"red"}
+              onPress={() => {
+                handleDeleteOrderComponent();
+                setShowModal(false);
+              }}
+              icon={<Icon as={Ionicons} name="trash" size={5}></Icon>}
+            ></IconButton>
+            <Button
+              mx="2"
+              flex="1"
+              colorScheme={"rose"}
+              onPress={() => {
+                setShowModal(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              mx="2"
+              flex="1"
+              onPress={() => {
+                setShowModal2(true);
+              }}
+            >
+              Cobrar
+            </Button>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
+
+      <Modal isOpen={showModal2} onClose={() => setShowModal2(false)} size="lg">
+        <Modal.Content maxWidth="350">
+          <Modal.CloseButton />
+          <Modal.Header>Select Address</Modal.Header>
+          <Modal.Body>
+            <VStack>
+              <Text>Modal 2</Text>
+            </VStack>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              flex="1"
+              onPress={() => {
+                setShowModal3(true);
+              }}
+            >
+              Continue
+            </Button>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
+
+      <Modal isOpen={showModal3} size="lg" onClose={() => setShowModal3(false)}>
+        <Modal.Content maxWidth="350">
+          <Modal.CloseButton />
+          <Modal.Header>Payment Options</Modal.Header>
+          <Modal.Body>
+            <VStack>
+              <Text>Modal 3</Text>
+            </VStack>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              flex="1"
+              onPress={() => {
+                setShowModal(false);
+                setShowModal2(false);
+                setShowModal3(false);
+              }}
+            >
+              Checkout
+            </Button>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
     </AppContainer>
   );
 };
@@ -432,7 +565,7 @@ const OrderDetailsScreen = () => {
 const Detail = ({ header, child }) => {
   return (
     <>
-      <HStack>
+      <HStack h={"100%"}>
         <Text bold style={styles.headerValue}>
           {header}{" "}
         </Text>
@@ -481,61 +614,26 @@ const TableContainer = ({ children }) => {
 const styles = StyleSheet.create({
   headerValue: {
     color: "#fff",
-    fontSize: rW(16),
+    fontSize: rS(7),
   },
   childValue: {
     color: "#fff",
-    fontSize: rW(16),
+    fontSize: rS(7),
   },
   datatablee: {
     height: "100%",
     backgroundColor: "#000",
   },
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  tePriceAndQty: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    maxWidth: "100%",
-  },
   tableContainer: {
     borderRadius: 10,
   },
-  icon: {
-    top: rH(20),
-  },
-  iconQty: {
-    top: rH(20),
-    left: rW(20),
-  },
-  buttonLabel: {
-    color: "#fff",
-    fontSize: rW(20),
-  },
   headerLabelTable: {
-    fontSize: rW(14),
+    fontSize: rS(7),
     color: "#fff",
-    textAlign: "left",
   },
   labelTable: {
-    fontSize: rW(14),
+    fontSize: rS(7),
     color: tertiary,
-  },
-  deleteIcon: {
-    color: "#000",
-  },
-  footer: {
-    height: rH(100), // Espacio para el pie de página de la tabla
-  },
-  textInput: {
-    height: rH(50),
-    width: rW(160),
-    margin: "auto",
   },
 });
 

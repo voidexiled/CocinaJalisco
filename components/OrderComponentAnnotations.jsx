@@ -1,6 +1,7 @@
 import {
   responsiveHeight as rH,
   responsiveWidth as rW,
+  responsiveSize as rS,
 } from "../utils/responsive";
 import { View } from "react-native";
 import React, { Component, memo } from "react";
@@ -17,12 +18,12 @@ const OrderComponentAnnotations = ({ anottation, setAnottation }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [tempAnottation, setTempAnottation] = React.useState(anottation);
   return (
-    <VStack minW={"20%"} maxW={"20%"} h={"100%"}>
+    <VStack minW={"20%"} maxW={"20%"} h={"100%"} pt={rS(4)}>
       <Box>
         <Text
           bold
-          ml={rW(6)}
-          fontSize={rH(14)}
+          pl={rS(12)}
+          fontSize={rS(7)}
           color={"transparent"}
           style={{}}
         >
@@ -34,7 +35,9 @@ const OrderComponentAnnotations = ({ anottation, setAnottation }) => {
           setTempAnottation(anottation);
           setIsOpen(true);
         }}
-        _text={{ color: "#fff" }}
+        h={rS(18)}
+        minH={rS(18)}
+        _text={{ color: "#fff", fontSize: rS(6), fontWeight: "bold" }}
         borderColor={"#fff"}
         borderWidth={1}
         bgColor={"transparent"}
@@ -51,7 +54,7 @@ const OrderComponentAnnotations = ({ anottation, setAnottation }) => {
           </AlertDialog.Header>
           <AlertDialog.Body>
             <Input
-              fontSize={"lg"}
+              fontSize={rS(10)}
               value={anottation}
               onChangeText={(text) => {
                 setAnottation(text);

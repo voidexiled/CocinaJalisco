@@ -1,6 +1,7 @@
 import {
   responsiveHeight as rH,
   responsiveWidth as rW,
+  responsiveSize as rS,
 } from "../utils/responsive";
 
 import { View } from "react-native";
@@ -22,10 +23,12 @@ const OverviewButton = ({
   return (
     <>
       <Button
-        h={"50%"}
+        minH={rS(20)}
+        h={rS(22)}
+        maxH={rS(25)}
         w={"34%"}
-        mb={4}
-        _text={{ color: "#fff", fontWeight: "bold", fontSize: rH(16) }}
+        mb={rS(4)}
+        _text={{ color: "#fff", fontWeight: "bold", fontSize: rS(7) }}
         bgColor={bgColor}
         _pressed={{ backgroundColor: pressedBgColor }}
         rounded={"xl"}

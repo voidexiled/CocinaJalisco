@@ -2,21 +2,23 @@ import { View } from "react-native";
 import {
   responsiveHeight as rH,
   responsiveWidth as rW,
+  responsiveSize as rS,
 } from "../utils/responsive";
-import React, { Component, memo, useState } from "react";
+import React, { memo, useState } from "react";
 
 import { VStack, Select, Icon, Text, Box } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "./styles";
 const QtySelect = ({ newProductQty, setNewProductQty, ...props }) => {
   return (
-    <VStack minW={"18%"} maxW={"18%"} h={"100%"}>
+    <VStack minW={"18%"} maxW={"18%"} h={"100%"} mt={rS(4)}>
       <Box>
-        <Text bold ml={rW(6)} fontSize={rH(14)} color={"#fff"}>
+        <Text bold pl={rS(12)} fontSize={rS(7)} color={"#fff"}>
           Cantidad
         </Text>
       </Box>
       <Select
+        defaultValue="1"
         selectedValue={newProductQty}
         onValueChange={(itemValue) => setNewProductQty(itemValue)}
         fontWeight={"bold"}
@@ -24,11 +26,11 @@ const QtySelect = ({ newProductQty, setNewProductQty, ...props }) => {
         pl="6"
         w={"100%"}
         h={"75%"}
-        minH={rH(8)}
+        minH={rS(18)}
         color={"#fff"}
         borderColor={"#fff"}
         placeholderTextColor={"#fff"}
-        fontSize={rH(14)}
+        fontSize={rS(6)}
         rounded={"full"}
         _selectedItem={{
           color: "white",
@@ -55,6 +57,7 @@ const QtySelect = ({ newProductQty, setNewProductQty, ...props }) => {
             color="#fff"
           />
         }
+        {...props}
       >
         {[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15].map((item, index) => {
           return (

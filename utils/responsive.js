@@ -23,3 +23,8 @@ export const responsiveHeight = (height) => {
   // );
   return (Dimensions.get("window").height * height) / heightMobileUI;
 };
+
+export const responsiveSize = (number) => {
+  const currentScreen = Dimensions.get("window");
+  return (currentScreen.height / currentScreen.width) * number;
+};

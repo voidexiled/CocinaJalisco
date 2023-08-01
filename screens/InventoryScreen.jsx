@@ -1,6 +1,7 @@
 import {
   responsiveWidth as rW,
   responsiveHeight as rH,
+  responsiveSize as rS,
 } from "../utils/responsive";
 import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { StyleSheet, FlatList } from "react-native";
@@ -67,7 +68,7 @@ const InventoryScreen = () => {
 
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 600);
   }, []);
 
   useEffect(() => {
@@ -375,11 +376,6 @@ const InventoryScreen = () => {
                       />
                     </VStack>
                   </HStack>
-                  <VStack w="100%" pt={rH(4)}>
-                    <Box width="100%">
-                      <Progress value={0} />
-                    </Box>
-                  </VStack>
                   {/* <VStack w="100%" alignItems={"center"}>
 
                 </VStack> */}
@@ -395,8 +391,9 @@ const InventoryScreen = () => {
                     inventorySubmit={true}
                     mode="contained"
                     onPress={handleAddProduct}
+                    style={{ minHeight: rS(24) }}
                   >
-                    <ButtonText style={styles.buttonLabel}>
+                    <ButtonText style={{ color: "#fff", fontSize: rS(8) }}>
                       Add Product
                     </ButtonText>
                   </StyledButton>
@@ -409,7 +406,8 @@ const InventoryScreen = () => {
         <VStack minW="100%" h={"20%"}>
           <Fab
             placement="bottom-right"
-            right={rW(20)}
+            right={rS(20)}
+            bottom={rS(20)}
             renderInPortal={false}
             shadow={2}
             bgColor={primary}
@@ -425,9 +423,9 @@ const InventoryScreen = () => {
           hideDragIndicator
         >
           <Actionsheet.Content>
-            <Box w="100%" h={60} px={4} justifyContent="center">
+            <Box w="100%" h={rS(30)} px={4} justifyContent="center">
               <Text
-                fontSize={rW(20)}
+                fontSize={rS(12)}
                 color="gray.500"
                 _dark={{
                   color: "gray.300",
@@ -475,16 +473,16 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
   },
   tableContainer: {
-    borderRadius: 10,
-    paddingTop: 24,
-    maxHeight: rH(720),
+    borderRadius: rS(10),
+    paddingTop: rS(10),
+    maxHeight: rS(400),
   },
   icon: {
-    top: rH(20),
+    top: rS(20),
   },
   iconQty: {
-    top: rH(20),
-    left: rW(20),
+    top: rS(20),
+    left: rS(20),
   },
   buttonLabel: {
     color: "#fff",

@@ -6,6 +6,7 @@ import { forwardRef } from "react";
 import {
   responsiveWidth as rW,
   responsiveHeight as rH,
+  responsiveSize as rS,
 } from "../utils/responsive";
 import { StyleSheet } from "react-native";
 import { Colors } from "./styles";
@@ -22,17 +23,17 @@ const InventoryInput = forwardRef(({ label, icon, ...props }, ref) => {
       <Input
         variant={"unstyled"}
         //backgroundColor="#212121"
-        borderRadius={12}
-        paddingLeft={rW(25)}
-        paddingRight={rW(25)}
-        fontSize={rW(16)}
+        borderRadius={rS(6)}
+        paddingLeft={rS(4)}
+        paddingRight={rS(4)}
+        fontSize={rS(8)}
         //height={rH(50)}
-        height={rH(45)}
+        height={rS(22)}
         //marginVertical={3}
         //elevation={15}
         //color="#fff"
         //borderWidth={0}
-        minWidth={rW(100)}
+        minWidth={rS(65)}
         placeholder={label}
         color={tertiary}
         borderColor={primary}

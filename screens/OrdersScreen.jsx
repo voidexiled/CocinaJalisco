@@ -1,12 +1,13 @@
 import {
   responsiveWidth as rW,
   responsiveHeight as rH,
+  responsiveSize as rS,
 } from "../utils/responsive";
 import React, { useState, useEffect, useCallback, memo } from "react";
 import { StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import axios from "axios";
-
+import { parse, compareAsc, compareDesc } from "date-fns";
 import {
   VStack,
   HStack,
@@ -101,13 +102,13 @@ const OrdersScreen = () => {
 
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1000);
   }, []);
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 600);
   }, []);
 
   useEffect(() => {
@@ -144,9 +145,16 @@ const OrdersScreen = () => {
       const response = await axios.get(
         "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders"
       );
+      // const ordersSorted = response.data.sort((a, b) => {
+      //   const timeA = parse(a.createdAt, "dd/MM/yyyy HH:mm:ss", new Date());
+      //   const timeB = parse(b.createdAt, "dd/MM/yyyy HH:mm:ss", new Date());
+      //   return compareDesc(timeA, timeB);
+      // });
+
       setOrders(response.data);
       setFilteredOrders(response.data);
-      //console.log("Ordenes:", response.data);
+      console.log("Ordenes:", response.data);
+      // console.log("Ordenes ordenadas:", ordersSorted);
       loadData();
     } catch (error) {
       console.error("Error al obtener las ordenes:", error);
@@ -309,6 +317,8 @@ const OrdersScreen = () => {
         >
           <Fab
             placement="bottom-right"
+            right={rS(20)}
+            bottom={rS(20)}
             renderInPortal={false}
             shadow={2}
             backgroundColor={primary}

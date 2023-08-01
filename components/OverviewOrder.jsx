@@ -1,4 +1,6 @@
+import { responsiveSize as rS } from "../utils/responsive";
 import { View } from "react-native";
+
 import {
   responsiveWidth as rW,
   responsiveHeight as rH,
@@ -26,111 +28,68 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
         onPress={() => {}}
         borderless
         style={{
-          margin: 0,
-          padding: 0,
-          borderWidth: 0,
-          paddingVertical: 0,
+          minHeight: rS(14),
         }}
       >
-        {item.name === "Total" ? (
-          <>
-            <DataTable.Cell numeric textStyle={{}} style={{ flex: 1 }}>
-              {/* <VStack
+        <>
+          <DataTable.Cell
+            borderless
+            textStyle={{}}
+            style={{ flex: 1, padding: 0, margin: 0 }}
+          >
+            {/* <VStack
                 w={"50%"}
                 justifyContent={"flex-end"}
                 alignItems={"flex-end"}
               > */}
-              <Text bold color={"#fff"} fontSize={rW(16)}>
-                {item.name}
-              </Text>
-              {/* </VStack> */}
-            </DataTable.Cell>
-            <DataTable.Cell numeric textStyle={{}} style={{ flex: 1 }}>
-              {/*<VStack w={"50%"} justifyContent={"center"} alignItems={"center"}>*/}
-              <Text bold color={"#fff"} fontSize={rW(16)}>
-                {"$ " + item.price}
-              </Text>
-              {/* </VStack> */}
-            </DataTable.Cell>
-          </>
-        ) : (
-          <>
-            <DataTable.Cell
-              borderless
-              textStyle={{}}
-              style={{ flex: 1, padding: 0, margin: 0, minHeight: "100%" }}
-            >
-              {/* <VStack
-                w={"50%"}
-                justifyContent={"flex-end"}
-                alignItems={"flex-end"}
-              > */}
-              <Text bold color={"#fff"} fontSize={rW(14)}>
-                {item.name + " x " + item.qty}
-              </Text>
-              {/* </VStack> */}
-            </DataTable.Cell>
-            <DataTable.Cell
-              numeric
-              borderless
-              textStyle={{}}
-              style={{ flex: 1, padding: 0, margin: 0, minHeight: "100%" }}
-            >
-              {/*<VStack w={"50%"} justifyContent={"center"} alignItems={"center"}>*/}
-              <Text bold color={"#fff"} fontSize={rW(14)}>
-                {"$ " + item.price * item.qty}
-              </Text>
-              {/* </VStack> */}
-            </DataTable.Cell>
-          </>
-        )}
+            <Text bold color={"#fff"} fontSize={rS(7)}>
+              {item.displayName + " x " + item.qty}
+            </Text>
+            {/* </VStack> */}
+          </DataTable.Cell>
+          <DataTable.Cell
+            numeric
+            borderless
+            textStyle={{}}
+            style={{ flex: 1, padding: 0, margin: 0 }}
+          >
+            {/*<VStack w={"50%"} justifyContent={"center"} alignItems={"center"}>*/}
+            <Text bold color={"#fff"} fontSize={rS(7)}>
+              {"$ " + item.total}
+            </Text>
+            {/* </VStack> */}
+          </DataTable.Cell>
+        </>
       </DataTable.Row>
     );
   }, []);
+  const getTotal = useCallback(() => {
+    let total = 0;
+    ovData.forEach((item) => {
+      total += item.total;
+    });
+    return total;
+  }, [ovData]);
+
   return (
     <VStack
-      mt={"5%"}
-      h={"40%"}
-      maxH={"53%"}
+      mt={rS(12)}
       borderWidth={1}
       borderColor={"#fff"}
       minW={"90%"}
       maxW={"90%"}
+      h={rS(80)}
+      maxH={rS(120)}
       rounded={"md"}
       py={4}
+      flexGrow={1}
     >
-      <Center maxH={"10%"}>
-        <Heading fontSize={rW(18)} color={"#fff"}>
+      <HStack justifyContent={"center"} alignItems={"center"}>
+        <Text fontSize={rS(10)} color={"#fff"}>
           Overview
-        </Heading>
-      </Center>
+        </Text>
+      </HStack>
 
-      {/* <FlatList
-        bgColor={"blue.100"}
-        nestedScrollEnabled={true}
-        scrollEnabled={true}
-        minH={"100%"}
-        w={"100%"}
-        h={"100%"}
-        data={ovData}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        StickyHeaderComponent={true}
-        ListHeaderComponent={() => (
-          <HStack pb={rH(2)} bgColor={"blue.100"}>
-            <VStack w={"30%"} justifyContent={"center"} alignItems={"center"}>
-              <Text bold color={"#fff"} fontSize={rW(18)}>
-                Producto
-              </Text>
-            </VStack>
-            <VStack w={"30%"} justifyContent={"center"} alignItems={"center"}>
-              <Text bold color={"#fff"} fontSize={rW(18)}>
-                Cantidad
-              </Text>
-            </VStack>
-          </HStack>
-        )}
-      /> */}
       <FlatList
         style={{ minWidth: "90%", padding: 0, paddingVertical: 0 }}
         data={ovData}
@@ -148,8 +107,8 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
           borderWidth: 0,
         }}
         ListHeaderComponent={() => (
-          <DataTable styles={{}}>
-            <DataTable.Header style={{ paddingVertical: 0, borderWidth: 0 }}>
+          <DataTable>
+            <DataTable.Header>
               {["Producto", "Precio"].map((column, index) => (
                 <DataTable.Title
                   numeric={column === "Precio" ? true : false}
@@ -163,7 +122,7 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
                   }}
                   key={index}
                 >
-                  <Text bold style={{ color: "#fff", fontSize: rW(16) }}>
+                  <Text bold style={{ color: "#fff", fontSize: rS(7) }}>
                     {column}
                   </Text>
                 </DataTable.Title>
@@ -172,6 +131,28 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
               {/* Establecer flex para controlar el ancho de las columnas */}
             </DataTable.Header>
           </DataTable>
+        )}
+        ListFooterComponent={() => (
+          <DataTable.Row>
+            <DataTable.Cell numeric textStyle={{}} style={{ flex: 1 }}>
+              {/* <VStack
+                w={"50%"}
+                justifyContent={"flex-end"}
+                alignItems={"flex-end"}
+              > */}
+              <Text bold color={"#fff"} fontSize={rS(8)}>
+                {"Total"}
+              </Text>
+              {/* </VStack> */}
+            </DataTable.Cell>
+            <DataTable.Cell numeric textStyle={{}} style={{ flex: 1 }}>
+              {/*<VStack w={"50%"} justifyContent={"center"} alignItems={"center"}>*/}
+              <Text bold color={"#fff"} fontSize={rW(rS(7))}>
+                {"$ " + getTotal()}
+              </Text>
+              {/* </VStack> */}
+            </DataTable.Cell>
+          </DataTable.Row>
         )}
       />
     </VStack>

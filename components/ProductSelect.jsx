@@ -1,6 +1,7 @@
 import {
   responsiveHeight as rH,
   responsiveWidth as rW,
+  responsiveSize as rS,
 } from "../utils/responsive";
 import { View } from "react-native";
 import React, { Component, memo, useState } from "react";
@@ -11,25 +12,26 @@ import { Colors } from "./styles";
 const { primary } = Colors;
 const ProductSelect = ({ inventory, newProduct, setNewProduct, ...props }) => {
   return (
-    <VStack minW={"35%"} maxW={"35%"} h={"100%"}>
+    <VStack minW={"35%"} maxW={"35%"} h={"100%"} mt={rS(4)}>
       <Box>
-        <Text bold ml={rW(6)} fontSize={rH(14)} color={"#fff"}>
+        <Text bold pl={rS(6)} fontSize={rS(7)} color={"#fff"}>
           Producto
         </Text>
       </Box>
 
       <Select
-        pl="6"
+        pl={rS(6)}
+        py={rS(0)}
         placeholder="Seleccionar producto"
         selectedValue={newProduct}
         onValueChange={(itemValue) => setNewProduct(itemValue)}
         w={"100%"}
         h={"75%"}
-        minH={rH(8)}
+        minH={rS(18)}
         color={"#fff"}
         borderColor={"#fff"}
         placeholderTextColor={"#fff"}
-        fontSize={rH(14)}
+        fontSize={rS(7)}
         fontWeight={"bold"}
         rounded={"full"}
         _selectedItem={{
