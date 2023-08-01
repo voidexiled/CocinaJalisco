@@ -75,7 +75,7 @@ const OrderDetailsScreen = () => {
   // Obtener el parámetro 'rowData' de la ruta para acceder a los datos pasados
   const row = route.params?.rowData || {};
   const users = route.params?.users || {};
-  const columns = ["Nombre", "Cantidad", "Precio", "Creado por"];
+  const columns = ["Nombre", "Descripcion", "Precio", "Creado por"];
   const [ovData, setOvData] = useState([]);
   const [displayName, setDisplayName] = useState();
   const [permissionLevel, setPermissionLevel] = useState();
@@ -258,7 +258,7 @@ const OrderDetailsScreen = () => {
       onPress={() => handleOpenRowOrder(item)}
       backgroundColor={colorMode === "light" ? background : background}
     >
-      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 1 }}>
+      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 2 }}>
         {loading ? (
           <Skeleton
             endColor="warmGray.500"
@@ -267,11 +267,11 @@ const OrderDetailsScreen = () => {
             rounded={20}
           ></Skeleton>
         ) : (
-          item.displayName
+          item.displayName + " x " + item.qty
         )}
       </DataTable.Cell>
 
-      <DataTable.Cell numeric textStyle={styles.labelTable} style={{ flex: 1 }}>
+      <DataTable.Cell textStyle={styles.labelTable} style={{ flex: 2 }}>
         {loading ? (
           <Skeleton
             endColor="warmGray.500"
@@ -280,7 +280,7 @@ const OrderDetailsScreen = () => {
             rounded={20}
           ></Skeleton>
         ) : (
-          item.qty
+          item.description
         )}
       </DataTable.Cell>
       <DataTable.Cell numeric textStyle={styles.labelTable} style={{ flex: 1 }}>
@@ -320,7 +320,7 @@ const OrderDetailsScreen = () => {
       bagColor={"#fff"}
       withKAV={true}
     >
-      <Stack h="100%" minW="100%">
+      <Stack h="100%" minW="100%" alignItems={"center"}>
         <OrderComponentTable
           styles={styles}
           ordComponents={ordComponents}
@@ -488,7 +488,8 @@ const styles = StyleSheet.create({
     fontSize: rW(16),
   },
   datatablee: {
-    height: "auto",
+    height: "100%",
+    backgroundColor: "#000",
   },
   container: {
     flex: 1,
@@ -504,8 +505,6 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     borderRadius: 10,
-    paddingTop: 24,
-    maxHeight: rH(500),
   },
   icon: {
     top: rH(20),

@@ -14,7 +14,9 @@ const OrderComponentTable = ({
   return (
     <VStack
       h={"40%"}
-      w={"100%"}
+      w={"90%"}
+      maxH={"30%"}
+
       //</Container>bgColor={"#0f0"}
     >
       <FlatList
@@ -24,9 +26,9 @@ const OrderComponentTable = ({
         keyExtractor={(item, index) => index.toString()}
         stickyHeaderIndices={[0]}
         ListHeaderComponentStyle={{
-          backgroundColor: primary,
-          borderTopLeftRadius: 10,
-          borderTopRightRadius: 10,
+          backgroundColor: "#FF7F50",
+          borderTopLeftRadius: 30,
+          borderTopRightRadius: 30,
         }}
         ListHeaderComponent={() => (
           <DataTable styles={styles.datatablee}>
@@ -36,7 +38,8 @@ const OrderComponentTable = ({
                   style={{ flex: 1 }}
                   key={index}
                   numeric={true}
-                  {...(index === 0 && { numeric: false })}
+                  {...(index === 0 && { numeric: false, flex: 2 })}
+                  {...(index === 1 && { flex: 2 })}
                 >
                   <Text style={styles.headerLabelTable}>{column}</Text>
                 </DataTable.Title>
