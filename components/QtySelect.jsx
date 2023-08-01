@@ -8,24 +8,27 @@ import React, { Component, memo, useState } from "react";
 import { VStack, Select, Icon, Text, Box } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "./styles";
-const QtySelect = () => {
+const QtySelect = ({ newProductQty, setNewProductQty, ...props }) => {
   return (
-    <VStack minW={"25%"} maxW={"25%"} h={"100%"}>
+    <VStack minW={"18%"} maxW={"18%"} h={"100%"}>
       <Box>
         <Text bold ml={rW(6)} fontSize={rH(14)} color={"#fff"}>
           Cantidad
         </Text>
       </Box>
       <Select
+        selectedValue={newProductQty}
+        onValueChange={(itemValue) => setNewProductQty(itemValue)}
         fontWeight={"bold"}
         placeholder="0"
         pl="6"
         w={"100%"}
         h={"75%"}
+        minH={rH(8)}
         color={"#fff"}
         borderColor={"#fff"}
         placeholderTextColor={"#fff"}
-        fontSize={rH(16)}
+        fontSize={rH(14)}
         rounded={"full"}
         _selectedItem={{
           color: "white",

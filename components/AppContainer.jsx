@@ -17,8 +17,10 @@ const AppContainer = ({
   insets,
   alignItems,
   children,
+  withKAV,
   ...props
 }) => {
+  if (withKAV === undefined) withKAV = true;
   if (!bagColor) bagColor = "rgba(255,255,255,0)";
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -33,11 +35,14 @@ const AppContainer = ({
           alignItems={alignItems}
           {...props}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            {children}
-          </KeyboardAvoidingView>
+          {withKAV && (
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+              {children}
+            </KeyboardAvoidingView>
+          )}
+          {!withKAV && children}
         </VStack>
       </SafeAreaProvider>
     </TouchableWithoutFeedback>

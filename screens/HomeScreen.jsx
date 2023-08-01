@@ -64,8 +64,8 @@ const HomeScreen = () => {
       if (value !== null) {
         // value previously stored
         const data = JSON.parse(value);
-        console.log(data);
-        return data.result;
+        console.log("data: ", data);
+        return data;
       }
     } catch (e) {
       // error reading value

@@ -60,7 +60,8 @@ const App = () => {
               name="OrderDetailsScreen"
               component={OrderDetailsScreen}
               options={{
-                title: "Detalles de orden",
+                headerShown: true,
+                title: "Orden #",
                 ...TransitionPresets.FadeFromBottomAndroid,
               }}
             />

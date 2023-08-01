@@ -3,6 +3,8 @@ import {
   responsiveHeight as rH,
   responsiveWidth as rW,
 } from "../utils/responsive";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLocalPermissionLevel } from "../utils/session";
 import React, {
   Component,
   memo,
@@ -22,6 +24,13 @@ import {
   Heading,
   Divider,
   Box,
+  Popover,
+  Input,
+  Button,
+  useToast,
+  Stack,
+  IconButton,
+  Icon,
 } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
@@ -34,6 +43,11 @@ import { TouchableOpacity } from "react-native";
 import ProductSelect from "../components/ProductSelect";
 import QtySelect from "../components/QtySelect";
 import OverviewOrder from "../components/OverviewOrder";
+import OverviewButton from "../components/OverviewButton";
+import axios from "axios";
+import OrderComponentAnnotations from "../components/OrderComponentAnnotations";
+import { Ionicons } from "@expo/vector-icons";
+import OrderComponentTable from "../components/OrderComponentTable";
 const {
   primary,
   secondary,
@@ -56,23 +70,165 @@ const OrderDetailsScreen = () => {
   const [ordComponents, setOrdComponents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inventory, setInventory] = useState([]);
-  const [newProduct, setNewProduct] = useState("key0");
+  const [newProduct, setNewProduct] = useState("");
+  const [newProductQty, setNewProductQty] = useState(1);
   // Obtener el parámetro 'rowData' de la ruta para acceder a los datos pasados
   const row = route.params?.rowData || {};
   const users = route.params?.users || {};
   const columns = ["Nombre", "Cantidad", "Precio", "Creado por"];
-  const ovData = [
-    { name: "Tamal de puerco x2", value: "$30" },
-    { name: "Tamal de picadillo x3", value: "$45" },
-  ];
+  const [ovData, setOvData] = useState([]);
+  const [displayName, setDisplayName] = useState();
+  const [permissionLevel, setPermissionLevel] = useState();
+  const [userId, setUserId] = useState();
+  const [anottation, setAnottation] = useState("");
+  const toast = useToast();
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Orden #" + row.id,
+    });
+    getLocalSession();
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      fetchOverview();
+    }, 1100);
+  }, []);
+
+  useEffect(() => {
+    fetchOrderComponents();
+  }, []);
+
+  const showAlert = useCallback((msg, typeoftoast) => {
+    if (typeoftoast === "success") {
+      toast.show({
+        placement: "top",
+        render: () => (
+          <Box bg="green.300" px="5" py="3" rounded="sm" mb={1}>
+            {msg}
+          </Box>
+        ),
+      });
+    } else if (typeoftoast === "error") {
+      toast.show({
+        placement: "top",
+        render: () => (
+          <Box bg="red.300" px="5" py="3" rounded="sm" mb={1}>
+            {msg}
+          </Box>
+        ),
+      });
+    }
+  }, []);
+
+  const getLocalSession = async () => {
+    try {
+      const value = await AsyncStorage.getItem("sessionData");
+      if (value !== null) {
+        // value previously stored
+        const data = JSON.parse(value);
+
+        setDisplayName(data.displayName);
+        setPermissionLevel(data.permissionLevel);
+        setUserId(data.id);
+
+        return data;
+      }
+    } catch (e) {
+      // error reading value
+      navigation.replace("LoginScreen");
+      console.log(e);
+    }
+  };
+  const handleFinishOrder = useCallback(() => {}, []);
+  const handleUpdateOverview = useCallback(() => {}, []);
+
+  const handleAddNewProduct = useCallback(() => {
+    // newProduct
+    // newProductQty
+
+    const newProductObj = {
+      orderId: row.id,
+      createdBy: userId,
+      displayName: newProduct,
+      qty: Number(newProductQty),
+      description: anottation,
+    };
+    console.log("Objeto nuevo: ", newProductObj);
+
+    try {
+      const response = axios.post(
+        "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/components",
+        newProductObj
+      );
+      fetchOverview();
+      fetchOrderComponents();
+      console.log("Producto agregado con éxito:", response);
+      showAlert("Producto agregado con éxito", "success");
+    } catch (error) {
+      console.log("Error al agregar el nuevo producto:", error);
+      showAlert("Error al agregar el nuevo producto", "error");
+    }
+  }, [newProduct, newProductQty, row.id, userId, fetchOverview, anottation]);
+
+  const fetchOverview = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/${row.id}/components`
+      );
+      let temp = [];
+      const dataOrder = response.data;
+      fetchInventory();
+      dataOrder.map((item) => {
+        temp.push({
+          id: item.id,
+          name: item.displayName,
+          qty: item.qty,
+          price: inventory.find((i) => i.displayName === item.displayName)
+            .price,
+        });
+      });
+      temp.push({
+        id: "total",
+        name: "Total",
+        qty: dataOrder.reduce((a, b) => a + b.qty, 0),
+        price: dataOrder.reduce(
+          (a, b) =>
+            a +
+            inventory.find((i) => i.displayName === b.displayName).price *
+              b.qty,
+          0
+        ),
+      });
+
+      setOvData(temp);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  const fetchOrderComponents = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/${row.id}/components`
+      );
+      setOrdComponents(response.data);
+    } catch (error) {
+      console.error("Error al obtener los componentes de la orden:", error);
+    }
+  }, []);
 
   const fetchInventory = useCallback(async () => {
-    const response = await fetch(
-      "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products"
-    );
-    const data = await response.json();
-    console.log(data);
-    setInventory(data);
+    try {
+      const response = await axios.get(
+        "https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/products"
+      );
+      setInventory(response.data);
+    } catch (error) {
+      console.error("Error al obtener el inventario:", error);
+    }
   }, []);
 
   const loadData = useCallback(() => {
@@ -83,26 +239,18 @@ const OrderDetailsScreen = () => {
     }, 2000);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
-
-  useEffect(() => {
-    fetchInventory();
-    fetchOrderComponents();
-    console.log(row);
-    console.log(users);
-  }, []);
-
-  const fetchOrderComponents = useCallback(async () => {
-    const response = await fetch(
-      `https://still-inlet-25058-4d5eca4f4cea.herokuapp.com/api/orders/${row.id}/components`
-    );
-    const data = await response.json();
-    console.log(data);
-    setOrdComponents(data);
+  const getLocalUserId = useCallback(async () => {
+    try {
+      const sessionDataString = await AsyncStorage.getItem("sessionData");
+      if (sessionDataString !== null) {
+        const sessionData = JSON.parse(sessionDataString);
+        return sessionData.id;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Error al obtener los datos de sesión5:", error);
+    }
   }, []);
 
   const renderItem = ({ item }) => (
@@ -170,76 +318,113 @@ const OrderDetailsScreen = () => {
       insets={insets}
       alignItems={"center"}
       bagColor={"#fff"}
+      withKAV={true}
     >
-      <Container h="100%" minW="100%" bgColor={"success.100"}></Container>
-      {/* BOTTOM CONTAINER  */}
-      <VStack
-        position={"absolute"}
-        bottom={0}
-        left={0}
-        w={"100%"}
-        h={"60%"}
-        flexShrink={0}
-        bgColor={"#885B5E"}
-        roundedTop={55}
-        shadow={5}
-        elevation={5}
-        alignItems={"center"}
-      >
+      <Stack h="100%" minW="100%">
+        <OrderComponentTable
+          styles={styles}
+          ordComponents={ordComponents}
+          renderItem={renderItem}
+          columns={columns}
+        />
         <VStack
+          bottom={0}
+          left={0}
+          position={"absolute"}
           w={"100%"}
-          h={"10%"}
-          justifyContent={"center"}
+          h={"60%"}
+          bgColor={"#885B5E"}
+          roundedTop={55}
+          shadow={5}
+          elevation={5}
           alignItems={"center"}
         >
-          <Heading color={"#fff"} fontSize={rW(30)}>
-            {"Orden de " + row.name}
-          </Heading>
-        </VStack>
-        <VStack w={"100%"} h={"15%"}>
-          <HStack
-            minW={"100%"}
-            h={"50%"}
-            justifyContent={"space-around"}
+          <VStack
+            w={"100%"}
+            h={"10%"}
+            justifyContent={"center"}
             alignItems={"center"}
           >
-            <Detail header="Lugar:" child={row.place} />
-            <Detail
-              header="Hora:"
-              child={getLocalTime(row.createdAt.split(" ")[1])}
+            <Heading color={"#fff"} fontSize={rW(24)}>
+              {"Orden de " + row.name}
+            </Heading>
+          </VStack>
+          <VStack w={"95%"} h={"12%"}>
+            <HStack
+              minW={"100%"}
+              h={"50%"}
+              justifyContent={"space-around"}
+              alignItems={"center"}
+            >
+              <Detail header="Lugar:" child={row.place} />
+              <Detail
+                header="Hora:"
+                child={getLocalTime(row.createdAt.split(" ")[1])}
+              />
+              <Detail header="Estado:" child={row._status} />
+            </HStack>
+            <HStack
+              w={"100%"}
+              h={"50%"}
+              justifyContent={"space-around"}
+              alignItems={"center"}
+            >
+              <Detail header="Descripción: " child={row.description} />
+              <Detail
+                header="Tomada por: "
+                child={
+                  users.find((user) => user.id === row.createdBy)?.displayName
+                }
+              />
+            </HStack>
+          </VStack>
+          <HStack
+            w="100%"
+            minH={"10%"}
+            maxH={"10%"}
+            justifyContent={"space-evenly"}
+          >
+            <ProductSelect
+              inventory={inventory}
+              newProduct={newProduct}
+              setNewProduct={setNewProduct}
             />
-            <Detail header="Estado:" child={row._status} />
+            <QtySelect
+              newProductQty={newProductQty}
+              setNewProductQty={setNewProductQty}
+            />
+            <OrderComponentAnnotations
+              setAnottation={setAnottation}
+              anottation={anottation}
+            />
           </HStack>
+          <OverviewOrder
+            ovData={ovData}
+            handleUpdateOverview={handleUpdateOverview}
+          ></OverviewOrder>
           <HStack
             w={"100%"}
-            h={"50%"}
-            justifyContent={"space-around"}
+            h={"15%"}
+            justifyContent={"space-evenly"}
             alignItems={"center"}
           >
-            <Detail header="Descripción: " child={row.description} />
-            <Detail
-              header="Tomada por: "
-              child={
-                users.find((user) => user.id === row.createdBy)?.displayName
-              }
+            <OverviewButton
+              bgColor={"#5D9B9B"}
+              pressedBgColor={"#838B8B"}
+              text="Finalizar"
+              onPress={() => {}}
+              shadow={2}
+            />
+            <OverviewButton
+              bgColor={"#966FD6"}
+              pressedBgColor={"#865FC6"}
+              text="Añadir Producto"
+              onPress={handleAddNewProduct}
+              shadow={2}
             />
           </HStack>
         </VStack>
-        <HStack
-          w="100%"
-          minH={"10%"}
-          maxH={"10%"}
-          justifyContent={"space-evenly"}
-        >
-          <ProductSelect
-            inventory={inventory}
-            newProduct={newProduct}
-            setNewProduct={setNewProduct}
-          />
-          <QtySelect />
-        </HStack>
-        <OverviewOrder ovData={ovData}></OverviewOrder>
-      </VStack>
+      </Stack>
     </AppContainer>
   );
 };
@@ -296,7 +481,7 @@ const TableContainer = ({ children }) => {
 const styles = StyleSheet.create({
   headerValue: {
     color: "#fff",
-    fontSize: rW(20),
+    fontSize: rW(16),
   },
   childValue: {
     color: "#fff",

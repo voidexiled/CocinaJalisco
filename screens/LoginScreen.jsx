@@ -84,8 +84,9 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const saveSessionData = async (sessionData) => {
+    console.log("sessionData from savesessiondata: ", sessionData);
     try {
-      const sessionDataString = JSON.stringify(sessionData);
+      const sessionDataString = JSON.stringify(sessionData.result);
       await AsyncStorage.setItem("sessionData", sessionDataString);
     } catch (error) {
       console.error("Error al guardar los datos de sesión:", error);

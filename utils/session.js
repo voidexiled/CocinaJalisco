@@ -37,3 +37,31 @@ export const saveLocalSession = async (sessionData) => {
     console.error("Error al guardar los datos de sesión3:", error);
   }
 };
+
+export const getLocalPermissionLevel = async () => {
+  try {
+    const sessionDataString = await AsyncStorage.getItem("sessionData");
+    if (sessionDataString !== null) {
+      const sessionData = JSON.parse(sessionDataString);
+      return sessionData.permissionLevel;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error al obtener los datos de sesión4:", error);
+  }
+};
+
+export const getLocalUserId = async () => {
+  try {
+    const sessionDataString = await AsyncStorage.getItem("sessionData");
+    if (sessionDataString !== null) {
+      const sessionData = JSON.parse(sessionDataString);
+      return sessionData.id;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error al obtener los datos de sesión5:", error);
+  }
+};

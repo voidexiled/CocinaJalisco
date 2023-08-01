@@ -288,20 +288,7 @@ const OrdersScreen = () => {
                 <DataTable.Header>
                   {columns.map((column, index) => (
                     <DataTable.Title style={{ flex: 1 }} key={index}>
-                      <TouchableOpacity onPress={() => sortTable(column)}>
-                        <Text style={styles.headerLabelTable}>
-                          {column + " "}
-                          {selectedColumn === column && (
-                            <Feather
-                              name={
-                                direction === "desc"
-                                  ? "chevron-down"
-                                  : "chevron-up"
-                              }
-                            />
-                          )}
-                        </Text>
-                      </TouchableOpacity>
+                      <Text style={styles.headerLabelTable}>{column}</Text>
                     </DataTable.Title>
                   ))}
 

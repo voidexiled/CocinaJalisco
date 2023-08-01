@@ -10,9 +10,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "./styles";
 const { primary } = Colors;
 const ProductSelect = ({ inventory, newProduct, setNewProduct, ...props }) => {
-  const [language, setLanguage] = useState("key0");
   return (
-    <VStack minW={"60%"} maxW={"60%"} h={"100%"}>
+    <VStack minW={"35%"} maxW={"35%"} h={"100%"}>
       <Box>
         <Text bold ml={rW(6)} fontSize={rH(14)} color={"#fff"}>
           Producto
@@ -26,10 +25,11 @@ const ProductSelect = ({ inventory, newProduct, setNewProduct, ...props }) => {
         onValueChange={(itemValue) => setNewProduct(itemValue)}
         w={"100%"}
         h={"75%"}
+        minH={rH(8)}
         color={"#fff"}
         borderColor={"#fff"}
         placeholderTextColor={"#fff"}
-        fontSize={rH(16)}
+        fontSize={rH(14)}
         fontWeight={"bold"}
         rounded={"full"}
         _selectedItem={{
@@ -57,6 +57,7 @@ const ProductSelect = ({ inventory, newProduct, setNewProduct, ...props }) => {
             color="#fff"
           />
         }
+        {...props}
       >
         {inventory.map
           ? inventory.map((item) => {
