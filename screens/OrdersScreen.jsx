@@ -32,6 +32,8 @@ import ReloadButton from "../components/ReloadButton";
 import { Colors, Dark } from "../components/styles";
 import AppContainer from "../components/AppContainer";
 import { useNavigation } from "@react-navigation/native";
+import { FILTER, STATUS } from "../utils/orderStatus";
+import Filters from "../components/Filters";
 
 const { primary, tertiary, background, text, secondary } = Colors;
 
@@ -58,6 +60,7 @@ const OrdersScreen = () => {
   const [direction, setDirection] = useState(null);
   const [selectedColumn, setSelectedColumn] = useState(null);
   const { colorMode, toggleColorMode } = useColorMode();
+  const [filters, setFilters] = useState([FILTER.TODOS]);
 
   const handleSearch = useCallback(
     (text) => {
@@ -150,16 +153,41 @@ const OrdersScreen = () => {
       //   const timeB = parse(b.createdAt, "dd/MM/yyyy HH:mm:ss", new Date());
       //   return compareDesc(timeA, timeB);
       // });
+      const data = response.data;
 
-      setOrders(response.data);
-      setFilteredOrders(response.data);
-      console.log("Ordenes:", response.data);
+      const filteredData = data.slice().sort((a, b) => {
+        return compareDesc(a.id, b.id);
+      });
+
+      setOrders(filteredData);
+      setFilteredOrders(filteredData);
+      applyFilters();
+      console.log("Ordenes:", orders);
+
       // console.log("Ordenes ordenadas:", ordersSorted);
       loadData();
     } catch (error) {
       console.error("Error al obtener las ordenes:", error);
     }
-  }, []);
+  }, [orders, setOrders, setFilteredOrders]);
+
+  const applyFilters = useCallback(() => {
+    if (
+      filters.length === 0 ||
+      filters.length === Object.keys(FILTER).length - 1 ||
+      filters.includes(FILTER.TODOS)
+    ) {
+      setFilteredOrders(orders);
+      return;
+    }
+    const filteredData = orders.filter((order) => {
+      console.log(filters.includes(order._status));
+      console.log(order._status, filters);
+      return filters.includes(order._status);
+    });
+    setOrders(filteredData);
+    setFilteredOrders(filteredData);
+  }, [filters, setFilters, orders]);
   const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -275,8 +303,15 @@ const OrdersScreen = () => {
 
           <ReloadButton fetcho={fetchOrders} fetchu={fetchUsers} />
         </HStack>
+        <VStack h={"12%"} w={"100%"}>
+          <Filters
+            filters={filters}
+            setFilters={setFilters}
+            loadData={loadData}
+          />
+        </VStack>
         <VStack
-          h={"70%"}
+          h={"58%"}
           w={"100%"}
           //</Container>bgColor={"#0f0"}
         >
@@ -317,8 +352,8 @@ const OrdersScreen = () => {
         >
           <Fab
             placement="bottom-right"
-            right={rS(20)}
-            bottom={rS(20)}
+            right={rW(20)}
+            bottom={rH(20)}
             renderInPortal={false}
             shadow={2}
             backgroundColor={primary}
@@ -399,7 +434,7 @@ const styles = StyleSheet.create({
   tableContainer: {
     borderRadius: 10,
     paddingTop: 24,
-    maxHeight: rH(500),
+    maxHeight: rH(800),
   },
   icon: {
     top: rH(20),

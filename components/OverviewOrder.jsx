@@ -73,7 +73,7 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
 
   return (
     <VStack
-      mt={rS(12)}
+      mt={rS(10)}
       borderWidth={1}
       borderColor={"#fff"}
       minW={"90%"}
@@ -81,11 +81,12 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
       h={rS(80)}
       maxH={rS(120)}
       rounded={"md"}
-      py={4}
+      py={2}
       flexGrow={1}
+      flex={1}
     >
       <HStack justifyContent={"center"} alignItems={"center"}>
-        <Text fontSize={rS(10)} color={"#fff"}>
+        <Text fontSize={rS(9)} color={"#fff"}>
           Overview
         </Text>
       </HStack>
@@ -122,7 +123,7 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
                   }}
                   key={index}
                 >
-                  <Text bold style={{ color: "#fff", fontSize: rS(7) }}>
+                  <Text bold style={{ color: "#fff", fontSize: rS(6) }}>
                     {column}
                   </Text>
                 </DataTable.Title>
@@ -133,7 +134,12 @@ const OverviewOrder = ({ ovData, handleUpdateOverview }) => {
           </DataTable>
         )}
         ListFooterComponent={() => (
-          <DataTable.Row>
+          <DataTable.Row
+            borderless
+            style={{
+              minHeight: rS(14),
+            }}
+          >
             <DataTable.Cell numeric textStyle={{}} style={{ flex: 1 }}>
               {/* <VStack
                 w={"50%"}

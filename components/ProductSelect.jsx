@@ -14,26 +14,29 @@ const ProductSelect = ({ inventory, newProduct, setNewProduct, ...props }) => {
   return (
     <VStack minW={"35%"} maxW={"35%"} h={"100%"} mt={rS(4)}>
       <Box>
-        <Text bold pl={rS(6)} fontSize={rS(7)} color={"#fff"}>
+        <Text bold pl={rS(6)} fontSize={rS(6)} color={"#fff"}>
           Producto
         </Text>
       </Box>
 
       <Select
+        p={0}
         pl={rS(6)}
         py={rS(0)}
         placeholder="Seleccionar producto"
         selectedValue={newProduct}
         onValueChange={(itemValue) => setNewProduct(itemValue)}
         w={"100%"}
-        h={"75%"}
-        minH={rS(18)}
+        h={rS(16)}
+        minH={rS(16)}
+        maxH={rS(18)}
         color={"#fff"}
         borderColor={"#fff"}
         placeholderTextColor={"#fff"}
-        fontSize={rS(7)}
+        fontSize={rS(6)}
         fontWeight={"bold"}
         rounded={"full"}
+        _text={{ numberOfLines: 1 }}
         _selectedItem={{
           color: "white",
           bg: "dark.600",

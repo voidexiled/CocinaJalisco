@@ -68,7 +68,7 @@ const OrderDetailsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [inventory, setInventory] = useState([]);
   const [newProduct, setNewProduct] = useState("");
-  const [newProductQty, setNewProductQty] = useState(1);
+  const [newProductQty, setNewProductQty] = useState("1");
   // Obtener el parámetro 'rowData' de la ruta para acceder a los datos pasados
   const row = route.params?.rowData || {};
   const users = route.params?.users || {};
@@ -331,7 +331,6 @@ const OrderDetailsScreen = () => {
       colorMode={colorMode}
       insets={insets}
       alignItems={"center"}
-      bagColor={"#fff"}
       withKAV={true}
     >
       <Stack h="100%" minW="100%" alignItems={"center"}>
@@ -346,7 +345,9 @@ const OrderDetailsScreen = () => {
           left={0}
           position={"absolute"}
           w={"100%"}
-          h={"60%"}
+          maxH={rH(600)}
+          minH={rH(500)}
+          h={rH(600)}
           bgColor={"#885B5E"}
           roundedTop={55}
           shadow={5}
@@ -395,7 +396,7 @@ const OrderDetailsScreen = () => {
           <HStack
             w="100%"
             minH={"10%"}
-            maxH={"10%"}
+            maxH={"15%"}
             justifyContent={"space-evenly"}
           >
             <ProductSelect

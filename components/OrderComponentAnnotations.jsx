@@ -18,25 +18,21 @@ const OrderComponentAnnotations = ({ anottation, setAnottation }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [tempAnottation, setTempAnottation] = React.useState(anottation);
   return (
-    <VStack minW={"20%"} maxW={"20%"} h={"100%"} pt={rS(4)}>
+    <VStack minW={"20%"} maxW={"20%"} h={"100%"} mt={rS(4)}>
       <Box>
-        <Text
-          bold
-          pl={rS(12)}
-          fontSize={rS(7)}
-          color={"transparent"}
-          style={{}}
-        >
-          Anotaciones
+        <Text bold pl={rS(6)} fontSize={rS(6)} color={"transparent"} style={{}}>
+          A
         </Text>
       </Box>
       <Button
+        p={0}
         onPress={() => {
           setTempAnottation(anottation);
           setIsOpen(true);
         }}
-        h={rS(18)}
-        minH={rS(18)}
+        h={rS(16)}
+        minH={rS(16)}
+        maxH={rS(18)}
         _text={{ color: "#fff", fontSize: rS(6), fontWeight: "bold" }}
         borderColor={"#fff"}
         borderWidth={1}

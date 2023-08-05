@@ -1,6 +1,16 @@
 export const STATUS = Object.freeze({
   PENDIENTE: "PENDIENTE",
   PAGADO: "PAGADO",
+  ENTREGADO: "ENTREGADO",
+  CANCELADO: "CANCELADO",
+  FIADO: "FIADO",
+});
+
+export const FILTER = Object.freeze({
+  TODOS: "TODOS",
+  PENDIENTE: "PENDIENTE",
+  PAGADO: "PAGADO",
+  ENTREGADO: "ENTREGADO",
   CANCELADO: "CANCELADO",
   FIADO: "FIADO",
 });

@@ -18,6 +18,7 @@ import {
   SafeAreaProvider,
   SafeAreaInsetsContext,
   useSafeAreaInsets,
+  SafeAreaView,
   initialWindowMetrics,
 } from "react-native-safe-area-context";
 
@@ -34,42 +35,40 @@ const App = () => {
 
   return (
     <NativeBaseProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            ...TransitionPresets.FadeFromBottomAndroid,
+          }}
+        >
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+
+          <Stack.Screen
+            name="MainTabNavigatorScreen"
+            component={MainTabNavigatorScreen}
+            options={{
+              ...TransitionPresets.FadeFromBottomAndroid, // Agrega la transición de Slide desde la derecha
+            }}
+          />
+          <Stack.Screen
+            name="EditarProductoScreen"
+            component={EditarProductoScreen}
+            options={{ title: "Editar Producto" }}
+          />
+          <Stack.Screen
+            name="OrderDetailsScreen"
+            component={OrderDetailsScreen}
+            options={{
+              headerShown: true,
+              title: "Orden #",
               ...TransitionPresets.FadeFromBottomAndroid,
             }}
-          >
-            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          />
 
-            <Stack.Screen
-              name="MainTabNavigatorScreen"
-              component={MainTabNavigatorScreen}
-              options={{
-                ...TransitionPresets.FadeFromBottomAndroid, // Agrega la transición de Slide desde la derecha
-              }}
-            />
-            <Stack.Screen
-              name="EditarProductoScreen"
-              component={EditarProductoScreen}
-              options={{ title: "Editar Producto" }}
-            />
-            <Stack.Screen
-              name="OrderDetailsScreen"
-              component={OrderDetailsScreen}
-              options={{
-                headerShown: true,
-                title: "Orden #",
-                ...TransitionPresets.FadeFromBottomAndroid,
-              }}
-            />
-
-            {/* Aquí puedes agregar más pantallas */}
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
+          {/* Aquí puedes agregar más pantallas */}
+        </Stack.Navigator>
+      </NavigationContainer>
     </NativeBaseProvider>
   );
 };

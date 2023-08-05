@@ -249,12 +249,7 @@ const InventoryScreen = () => {
   );
 
   return (
-    <AppContainer
-      colorMode={colorMode}
-      insets={insets}
-      alignItems={"center"}
-      bgColor
-    >
+    <AppContainer colorMode={colorMode} insets={insets} alignItems={"center"}>
       <Container h="100%" minW="90%">
         {/* TOP Container*/}
         <VStack minW="100%" h={"80%"}>
@@ -406,8 +401,8 @@ const InventoryScreen = () => {
         <VStack minW="100%" h={"20%"}>
           <Fab
             placement="bottom-right"
-            right={rS(20)}
-            bottom={rS(20)}
+            right={rW(20)}
+            bottom={rH(20)}
             renderInPortal={false}
             shadow={2}
             bgColor={primary}
@@ -425,18 +420,14 @@ const InventoryScreen = () => {
           <Actionsheet.Content>
             <Box w="100%" h={rS(30)} px={4} justifyContent="center">
               <Text
-                fontSize={rS(12)}
+                fontSize={rS(10)}
                 color="gray.500"
                 _dark={{
                   color: "gray.300",
                 }}
               >
                 {row &&
-                  row.displayName +
-                    "      PRECIO:  $" +
-                    row.price +
-                    "      CANTIDAD:   " +
-                    row.qty}
+                  row.displayName + "    $" + row.price + "    Qty: " + row.qty}
               </Text>
             </Box>
             <Actionsheet.Item
